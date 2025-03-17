@@ -24,5 +24,10 @@ namespace Erp.View.Thesis
         {
             InitializeComponent();
         }
+
+        private void Border_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+
+        }
     }
 }

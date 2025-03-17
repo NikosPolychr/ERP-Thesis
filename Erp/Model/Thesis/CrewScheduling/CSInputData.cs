@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Erp.Model.Enums;
+using Erp.Model.Colgen;
 
 
 namespace Erp.Model.Thesis.CrewScheduling
@@ -136,13 +137,27 @@ namespace Erp.Model.Thesis.CrewScheduling
         #endregion
         #endregion
 
+        #region Colgen Settings
 
+        private bool _ShowColgenSettings = true;
+        public bool ShowColgenSettings
+        {
+            get { return _ShowColgenSettings; }
+            set { _ShowColgenSettings = value; OnPropertyChanged("ShowColgenSettings"); }
+        }
+        private bool _RandomDataFlag = true;
+        public bool RandomDataFlag
+        {
+            get { return _RandomDataFlag; }
+            set { _RandomDataFlag = value; OnPropertyChanged("RandomDataFlag"); }
+        }
 
-
-
-
-
-
-
+        private ColgenSettings _ColgenSettings;
+        public ColgenSettings ColgenSettings
+        {
+            get { return _ColgenSettings; }
+            set { _ColgenSettings = value; OnPropertyChanged("ColgenSettings"); }
+        }
+        #endregion
     }
 }

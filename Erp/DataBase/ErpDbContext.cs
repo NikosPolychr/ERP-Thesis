@@ -1,5 +1,4 @@
-﻿using Erp.DataBase.Motherland;
-using Erp.DataBase.Τhesis;
+﻿using Erp.DataBase.Τhesis;
 using Erp.Model;
 using MahApps.Metro.Controls;
 using Microsoft.EntityFrameworkCore;
@@ -72,13 +71,7 @@ namespace Erp.DataBase
 
         #endregion
 
-        #region Motherland
-        public DbSet<DepartmentDataEntity> Department { get; set; }
 
-        public DbSet<PositionDataEntity> Position { get; set; }
-
-
-        #endregion
         #region Database Related Commands
         public static DbContextOptions<ErpDbContext> DbOptions { get; set; }
         public ErpDbContext(DbContextOptions<ErpDbContext> options)

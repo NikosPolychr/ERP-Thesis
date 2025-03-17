@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Syncfusion.UI.Xaml.Grid;
 using System.Security.Policy;
 using Erp.Model.Interfaces;
+using Erp.CommonFiles.Colgen;
 
 namespace Erp.ViewModel
 {
@@ -127,7 +128,7 @@ namespace Erp.ViewModel
 
         public CommonFunctions CommonFunctions = new CommonFunctions();
         public CPLEXFunctions CplexFunctions = new CPLEXFunctions();
-        public MLandFunctions MLandFunctions = new MLandFunctions();
+        public ColgenFunctions ColgenFunctions = new ColgenFunctions();
 
         public F7Common F7Common = new F7Common();
 

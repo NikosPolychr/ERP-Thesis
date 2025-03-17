@@ -42,6 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,10 +76,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ILOG.Concert">
-      <HintPath>..\..\..\..\..\..\..\Program Files\IBM\ILOG\CPLEX_Studio_Community2211\cplex\bin\x64_win64\ILOG.Concert.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files\IBM\ILOG\CPLEX_Studio_Community2212\cplex\bin\x64_win64\ILOG.Concert.dll</HintPath>
     </Reference>
     <Reference Include="ILOG.CPLEX">
-      <HintPath>..\..\..\..\..\..\..\Program Files\IBM\ILOG\CPLEX_Studio_Community2211\cplex\bin\x64_win64\ILOG.CPLEX.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files\IBM\ILOG\CPLEX_Studio_Community2212\cplex\bin\x64_win64\ILOG.CPLEX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -112,10 +113,11 @@
     </ApplicationDefinition>
     <Compile Include="3. Commands.cs" />
     <Compile Include="Commands\AsyncCommand.cs" />
+    <Compile Include="CommonFiles\Colgen\ColgenFunctions.cs" />
+    <Compile Include="CommonFiles\Colgen\DataGen.cs" />
     <Compile Include="CommonFiles\CommonFunctions.cs" />
     <Compile Include="CommonFiles\CPLEXFunctions.cs" />
     <Compile Include="CommonFiles\F7Common.cs" />
-    <Compile Include="CommonFiles\MLandFunctions.cs" />
     <Compile Include="Converters\ColorConverter.cs" />
     <Compile Include="Converters\CultureFormatConverter.cs" />
     <Compile Include="Converters\CustomRowStyleConverter.cs" />
@@ -133,11 +135,6 @@
     <Compile Include="DataBase\CityDataEntity.cs" />
     <Compile Include="DataBase\CountryDataEntity.cs" />
     <Compile Include="DataBase\ErpDbContext.cs" />
-    <Compile Include="DataBase\Motherland\ClientDataEntity.cs" />
-    <Compile Include="DataBase\Motherland\DepartmentDataEntity.cs" />
-    <Compile Include="DataBase\Motherland\MLEmployeeDataEntity.cs" />
-    <Compile Include="DataBase\Motherland\OfferDataEntity.cs" />
-    <Compile Include="DataBase\Motherland\PositionDataEntity.cs" />
     <Compile Include="DataBase\PrefectureEntity.cs" />
     <Compile Include="DataBase\Τhesis\AircraftDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\AirportsDataEntity.cs" />
@@ -161,8 +158,11 @@
     <Compile Include="Model\BasicFiles\CountryData.cs" />
     <Compile Include="Model\BasicFiles\PrefectureData.cs" />
     <Compile Include="Model\ChildViewModelData.cs" />
+    <Compile Include="Model\Colgen\AuxList.cs" />
+    <Compile Include="Model\Colgen\ColGenSettings.cs" />
+    <Compile Include="Model\Colgen\NetworkNode.cs" />
+    <Compile Include="Model\Colgen\TreeNode.cs" />
     <Compile Include="Model\Enums\BasicEnums.cs" />
-    <Compile Include="Model\Enums\MLandEnums.cs" />
     <Compile Include="Model\F7Data.cs" />
     <Compile Include="Model\Interfaces\IToolbarRepository.cs" />
     <Compile Include="Model\Interfaces\IUserRepository.cs" />
@@ -170,10 +170,6 @@
     <Compile Include="Model\ItemMenu.cs" />
     <Compile Include="Model\Log.cs" />
     <Compile Include="Model\ModelBase.cs" />
-    <Compile Include="Model\Motherland\BasicFiles\DepartmentData.cs" />
-    <Compile Include="Model\Motherland\BasicFiles\PositionData.cs" />
-    <Compile Include="Model\Motherland\Client\ClientData.cs" />
-    <Compile Include="Model\Motherland\Employee\MLEmployeeData.cs" />
     <Compile Include="Model\SubItem.cs" />
     <Compile Include="Model\Thesis\ActivePanelToVisibilityLeaveTypeConverter.cs" />
     <Compile Include="Model\Thesis\AircraftData.cs" />
@@ -211,11 +207,6 @@
     <Compile Include="ViewModel\MainViewModel2.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\Motherland\ClientViewModel.cs" />
-    <Compile Include="ViewModel\Motherland\DepartmentViewModel.cs" />
-    <Compile Include="ViewModel\Motherland\MLEmployeeViewModel.cs" />
-    <Compile Include="ViewModel\Motherland\OfferViewModel.cs" />
-    <Compile Include="ViewModel\Motherland\PositionViewModel.cs" />
     <Compile Include="ViewModel\TabViewModel.cs" />
     <Compile Include="ViewModel\Thesis\AirportsViewmodel.cs" />
     <Compile Include="ViewModel\Thesis\CrewSchedulingViewModel.cs" />
@@ -241,21 +232,6 @@
     </Compile>
     <Compile Include="View\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Motherland\ClientView.xaml.cs">
-      <DependentUpon>ClientView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Motherland\DepartmentView.xaml.cs">
-      <DependentUpon>DepartmentView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Motherland\MLEmployeeView.xaml.cs">
-      <DependentUpon>MLEmployeeView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Motherland\OfferView.xaml.cs">
-      <DependentUpon>OfferView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Motherland\PositionView.xaml.cs">
-      <DependentUpon>PositionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Thesis\AirportsView.xaml.cs">
       <DependentUpon>AirportsView.xaml</DependentUpon>
@@ -331,26 +307,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\Motherland\ClientView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Motherland\DepartmentView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Motherland\MLEmployeeView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Motherland\OfferView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Motherland\PositionView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\Thesis\AirportsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -406,14 +362,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="bin\Debug\Colgen\Data Input\CrewMemberData_CrewScheduling.lp" />
+    <None Include="bin\Debug\Colgen\Data Input\ProgramParameters_CrewScheduling.lp" />
+    <None Include="bin\Debug\Colgen\Data Input\RouteData_CrewScheduling.lp" />
+    <None Include="bin\Debug\Colgen\Optimization\SetCover_InitialMasterProblem.lp" />
     <None Include="bin\Debug\cslogfile.log" />
     <None Include="bin\Debug\cslogfile_final.log" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Cover\CS_SetCover.lp" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Cover\CS_SetCover.mps" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Cover\CS_SetCover.sol" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Partition\CS_Set_Partition.lp" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Partition\CS_Set_Partition.mps" />
-    <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Partition\CS_Set_Partition.sol" />
     <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\Vacation_Planning\VP.lp" />
     <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\Vacation_Planning\VP.mps" />
     <None Include="bin\Debug\OptimizationResults\CPLEX\Thesis\Vacation_Planning\VP.sol" />
@@ -456,8 +410,10 @@
     <Resource Include="Images\usericon.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Cover\" />
+    <Folder Include="bin\Debug\OptimizationResults\CPLEX\Thesis\CS_Set_Partition\" />
+    <Folder Include="Converters\Colgen\" />
     <Folder Include="Images\Motherland\" />
-    <Folder Include="Model\Motherland\Offer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

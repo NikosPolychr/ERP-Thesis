@@ -16,7 +16,6 @@ using Syncfusion.Windows.Tools.Controls;
 using Syncfusion.Data.Extensions;
 using Erp.View.Thesis;
 using Erp.Model.Thesis;
-using Erp.View.Motherland;
 
 namespace Erp.View
 {
@@ -85,25 +84,9 @@ namespace Erp.View
             var CSThesis = new ItemMenu("Crew Rostering Menu", menuFlights2, PackIconKind.Schedule);
             #endregion
 
-            #region Motherland
-
-            var menuMLand = new List<SubItem>();
-
-            //menuFlights.Add(new SubItem("Languages", new LanguageView()));
-            menuMLand.Add(new SubItem("Departments", new DepartmentView()));
-            menuMLand.Add(new SubItem("Positions", new PositionView()));
-            menuMLand.Add(new SubItem("Employees", new MLEmployeeView()));
-            menuMLand.Add(new SubItem("Clients", new ClientView()));
-            menuMLand.Add(new SubItem("Offers", new OfferView()));
-
-            var MLand = new ItemMenu("Motherland Menu", menuMLand, PackIconKind.Schedule);
 
 
 
-            #endregion
-
-
-            SubItems = SubItems.Concat(menuMLand).ToList();
 
             //Menu.Children.Add(new UserControlMenuItem(BasicFiles, this));
             //Menu.Children.Add(new UserControlMenuItem(Customers, this));
@@ -114,7 +97,6 @@ namespace Erp.View
             //Menu.Children.Add(new UserControlMenuItem(SupChain, this));
             //Menu.Children.Add(new UserControlMenuItem(DataAnalysis, this));
 
-            Menu.Children.Add(new UserControlMenuItem(MLand, this));
             Menu.Children.Add(new UserControlMenuItem(VPThesis, this));
             Menu.Children.Add(new UserControlMenuItem(CSThesis, this));
 

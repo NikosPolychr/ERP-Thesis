@@ -92,7 +92,7 @@
                             </Grid.ColumnDefinitions>
 
 
-                            <Border BorderBrush="Black" BorderThickness="1" Grid.Row="0" Grid.Column ="0"  Margin="5"  >
+                            <Border BorderBrush="Black" BorderThickness="1" Grid.Row="0" Grid.Column ="0"  Margin="5"   >
                                 <StackPanel>
                                     <TextBlock Text="General Settings " FontWeight="Bold" HorizontalAlignment="Center" Margin="5"/>
                                     <Grid>
@@ -147,12 +147,124 @@
 
                                     </Grid>
                                 </StackPanel>
-
                             </Border>
+                            <!--<Border BorderBrush="Black" BorderThickness="1" Grid.Row="0" Grid.Column ="0"  Margin="5" IsEnabled="{Binding InputData.RandomDataFlag, Mode=TwoWay}"   >
+                                <StackPanel >
+                                    <TextBlock Text="Random Data Settings " FontWeight="Bold" HorizontalAlignment="Center" Margin="5"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
 
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="N : " Grid.Row="1" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="R : " Grid.Row="1" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Days : " Grid.Row="2" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Min Route Duration : " Grid.Row="2" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Max Route Duration : " Grid.Row="3" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Max Flights Hours CM : " Grid.Row="3" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Window Range CM : " Grid.Row="4" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="CMBoundDiffAver : " Grid.Row="4" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="DaysOff : " Grid.Row="5" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="MinHoursBetween : " Grid.Row="5" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="LatestArrivalTime : " Grid.Row="6" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="EarliestDepartureTime : " Grid.Row="6" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="XHoursBreak : " Grid.Row="7" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="YFlightHours : " Grid.Row="7" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="MaximumFlightHours : " Grid.Row="8" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="UndercoverCost : " Grid.Row="8" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="HourPenalty : " Grid.Row="9" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="MaxDouble : " Grid.Row="9" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Eps : " Grid.Row="10" Grid.Column="0" Margin="2"/>
 
+                                        <TextBox Grid.Row="1"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.N, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.R, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.Days, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MinRouteDuration, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.MaxRouteDuration, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MaxFlightHoursCM, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.WindowRangeCM, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.CMBoundDiffAver, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.DaysOff, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MinHoursBetween, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.LatestArrivalTime, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.EarliestDepartureTime, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.XHoursBreak, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="7"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.YFlightHours, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="7"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.MaximumFlightHours, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="8"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.UndercoverCost, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="8"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.HourPenalty, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="9"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MaxDouble, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="9"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.Eps, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="10"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.NumberOfTreeNodesLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
 
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border BorderBrush="Black" BorderThickness="1" Grid.Row="0" Grid.Column ="1"  Margin="5" IsEnabled="{Binding InputData.ShowColgenSettings, Mode=TwoWay}"  >
+                                <StackPanel>
+                                    <TextBlock Text="Colgen Settings " FontWeight="Bold" HorizontalAlignment="Center" Margin="5"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
 
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Buckets : " Grid.Row="1" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="FictBuckets : " Grid.Row="1" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="ReducedCostCut : " Grid.Row="2" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="NIDRAI : " Grid.Row="2" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="UpdateDualsManuallyScheme : " Grid.Row="3" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="AbsBacktrack : " Grid.Row="3" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="PerceBacktrack : " Grid.Row="4" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="AbsMIP : " Grid.Row="4" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="PerceMIP : " Grid.Row="5" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="NumberOfBacktracksLimit : " Grid.Row="5" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="NumberOfTreeNodesLimit : " Grid.Row="6" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="TreelistSortingIdsFixed : " Grid.Row="6" Grid.Column="2" Margin="2"/>
+                                       
+                                        <TextBox Grid.Row="1"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.Buckets, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.FictBuckets, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.ReducedCostCut, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.NIDRAI, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.UpdateDualsManuallyScheme, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.AbsBacktrack, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.PerceBacktrack, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.AbsMIP, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.PerceMIP, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.NumberOfBacktracksLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.NumberOfTreeNodesLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.TreelistSortingIdsFixed, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+
+                                    </Grid>
+                                </StackPanel>
+                            </Border>-->
 
                         </Grid>
 
@@ -179,9 +291,27 @@
                             <Button x:Name="Calculate_Cplex"   HorizontalAlignment="Left" Margin="4" Width="230" Command="{Binding CalculateCS_CPLEX}">
                                 <TextBlock Text="Calculate Crew Rostering" FontWeight="Bold"/>
                             </Button>
-                        </StackPanel>
 
-                        <syncfusion:SfDataGrid x:Name="sfGrid"
+
+                            
+                        </StackPanel>
+                        <!--<StackPanel  HorizontalAlignment="Left" Orientation="Horizontal">
+
+                            <ToggleButton x:Name = "tb2" Content = "Show Colgen Settings"  
+                            IsChecked="{Binding InputData.ShowColgenSettings, Mode=TwoWay}"  Margin = "15,2,2,2"  Background="Beige" BorderBrush="Black" 
+                            Width = "200" HorizontalAlignment = "Center" >
+                            </ToggleButton>
+                            <ToggleButton x:Name = "tb3" Content = "Random Data"  
+                            IsChecked="{Binding InputData.RandomDataFlag, Mode=TwoWay}"  Margin = "15,2,2,2"  Background="Beige" BorderBrush="Black" 
+                            Width = "200" HorizontalAlignment = "Center" >
+                            </ToggleButton>
+                            <Button x:Name="Calculate_Colgen"   HorizontalAlignment="Left" Margin="4" Width="230" Command="{Binding CalculateColgen}">
+                                <TextBlock Text="Calculate Colgen" />
+                            </Button>
+                        </StackPanel>-->
+
+
+                            <syncfusion:SfDataGrid x:Name="sfGrid"
 
                                                     ColumnSizer="Star"
                                                     Background="White"
@@ -214,6 +344,168 @@
 
                     </StackPanel>
                 </TabItem>
+                <TabItem Header="Column Generation ">
+                    <StackPanel>
+                        <Grid  Margin="0,0,-193,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+
+                            </Grid.ColumnDefinitions>
+
+                            <Border BorderBrush="Black" BorderThickness="1" Grid.Row="0" Grid.Column ="0"  Margin="5" IsEnabled="{Binding InputData.RandomDataFlag, Mode=TwoWay}"   >
+                                <StackPanel >
+                                    <TextBlock Text="Random Data Settings " FontWeight="Bold" HorizontalAlignment="Center" Margin="5"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="N : " Grid.Row="1" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="R : " Grid.Row="1" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Days : " Grid.Row="1" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="Min Route Duration : " Grid.Row="2" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Max Route Duration : " Grid.Row="2" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Max Flights Hours CM : " Grid.Row="2" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="Window Range CM : " Grid.Row="3" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="CM Bound Diff Aver : " Grid.Row="3" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Days Off : " Grid.Row="3" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="Min Hours Between : " Grid.Row="4" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Latest Arrival Time : " Grid.Row="4" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Earliest Departure Time : " Grid.Row="4" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="XHours Break : " Grid.Row="5" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="YFlight Hours : " Grid.Row="5" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Maximum Flight Hours : " Grid.Row="5" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="Undercover Cost : " Grid.Row="6" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Hour Penalty : " Grid.Row="6" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Max Double : " Grid.Row="6" Grid.Column="4" Margin="2"/>
+                                        <TextBlock Text="Eps : " Grid.Row="7" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Number Of Tree Nodes Limit : " Grid.Row="7" Grid.Column="2" Margin="2"/>
+
+                                        <TextBox Grid.Row="1"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.N, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.R, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.Days, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MinRouteDuration, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.MaxRouteDuration, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.MaxFlightHoursCM, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.WindowRangeCM, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.CMBoundDiffAver, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.DaysOff, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.MinHoursBetween, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.LatestArrivalTime, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.EarliestDepartureTime, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.XHoursBreak, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.YFlightHours, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.MaximumFlightHours, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.UndercoverCost, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.HourPenalty, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="5" Text="{Binding InputData.ColgenSettings.MaxDouble, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="7"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.Eps, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="7"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.NumberOfTreeNodesLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border BorderBrush="Black" BorderThickness="1" Grid.Row="1" Grid.Column ="0"  Margin="5" IsEnabled="{Binding InputData.ShowColgenSettings, Mode=TwoWay}"  >
+                                <StackPanel>
+                                    <TextBlock Text="Colgen Settings " FontWeight="Bold" HorizontalAlignment="Center" Margin="5"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Buckets : " Grid.Row="1" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Fict Buckets : " Grid.Row="1" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Reduced Cost Cut : " Grid.Row="2" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="NIDRAI : " Grid.Row="2" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Update Duals Manually Scheme : " Grid.Row="3" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Abs Backtrack : " Grid.Row="3" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Perce Backtrack : " Grid.Row="4" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Abs MIP : " Grid.Row="4" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Perce MIP : " Grid.Row="5" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Number Of Backtracks Limit : " Grid.Row="5" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Number Of TreeNodes Limit : " Grid.Row="6" Grid.Column="0" Margin="2"/>
+                                        <TextBlock Text="Tree list Sorting Ids Fixed : " Grid.Row="6" Grid.Column="2" Margin="2"/>
+
+                                        <TextBox Grid.Row="1"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.Buckets, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="1"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.FictBuckets, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.ReducedCostCut, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="2"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.NIDRAI, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.UpdateDualsManuallyScheme, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="3"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.AbsBacktrack, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.PerceBacktrack, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="4"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.AbsMIP, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.PerceMIP, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="5"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.NumberOfBacktracksLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="1" Text="{Binding InputData.ColgenSettings.NumberOfTreeNodesLimit, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+                                        <TextBox Grid.Row="6"  Grid.Column="3" Text="{Binding InputData.ColgenSettings.TreelistSortingIdsFixed, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="182" />
+
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                        </Grid>
+
+                        <StackPanel  HorizontalAlignment="Left" Orientation="Horizontal">
+
+                            <ToggleButton x:Name = "tb2" Content = "Show Colgen Settings"  
+                            IsChecked="{Binding InputData.ShowColgenSettings, Mode=TwoWay}"  Margin = "15,2,2,2"  Background="Beige" BorderBrush="Black" 
+                            Width = "200" HorizontalAlignment = "Center" >
+                            </ToggleButton>
+                            <ToggleButton x:Name = "tb3" Content = "Random Data"  
+                            IsChecked="{Binding InputData.RandomDataFlag, Mode=TwoWay}"  Margin = "15,2,2,2"  Background="Beige" BorderBrush="Black" 
+                            Width = "200" HorizontalAlignment = "Center" >
+                            </ToggleButton>
+                            <Button x:Name="Calculate_Colgen"   HorizontalAlignment="Left" Margin="4" Width="230" Command="{Binding CalculateColgen}">
+                                <TextBlock Text="Calculate Colgen" />
+                            </Button>
+                        </StackPanel>
+
+                    </StackPanel>
+                </TabItem>
                 <TabItem Header="Optimization Results">
                     <TabControl>
                         <TabItem Header="Results">
@@ -235,9 +527,9 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="Objective Value : " Grid.Row="0" Grid.Column="0" Margin="2"/>
-                                <TextBox Text="{Binding OutputData.ObjValue, Mode=TwoWay}" Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Stretch" Width="135" Margin="2" />
+                                <TextBox Text="{Binding OutputData.ObjValue, Mode=TwoWay}" Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Stretch" Width="135" Margin="2" IsEnabled="False"/>
                                 <TextBlock Text="CS Type : " Grid.Row="0" Grid.Column="2" Margin="2"/>
-                                <TextBox Text="{Binding InputData.CSType, Mode=TwoWay}" Grid.Row="0" Grid.Column="3"  HorizontalAlignment="Stretch" Width="135" Margin="2" />
+                                <TextBox Text="{Binding InputData.CSType, Mode=TwoWay}" Grid.Row="0" Grid.Column="3"  HorizontalAlignment="Stretch" Width="135" Margin="2" IsEnabled="False"/>
 
 
 

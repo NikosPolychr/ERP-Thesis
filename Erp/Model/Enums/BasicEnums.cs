@@ -14,7 +14,8 @@ namespace Erp.Model.Enums
         public enum CSType
         {
             Set_Partition,
-            Set_Covering
+            Set_Covering,
+            Hybrid
         }
         public enum VPLogicType
         {
