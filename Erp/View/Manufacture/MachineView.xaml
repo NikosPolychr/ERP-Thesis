@@ -41,13 +41,13 @@
 
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Machine Code : " FontWeight="Bold" FontSize="14"  Grid.Row="1" Grid.Column="0" Margin="2" />
+        <TextBlock Text="Machine Code : " FontWeight="Bold"   Grid.Row="1" Grid.Column="0" Margin="2" />
         <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left"  Orientation="Horizontal"  Margin="2">
             <TextBox Text="{Binding FlatData.MachCode}" HorizontalAlignment="left" Width="115"  />
             <Button Content="f" Width="20"                    Command="{Binding ShowMachDataGridCommand}"/>
         </StackPanel>
 
-        <TextBlock Text="Machine Descr : " FontWeight="Bold" FontSize="14" Grid.Row="1" Grid.Column="2"  Margin="2" />
+        <TextBlock Text="Machine Descr : " FontWeight="Bold"  Grid.Row="1" Grid.Column="2"  Margin="2" />
         <StackPanel Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch"  Orientation="Horizontal"  Margin="2">
             <TextBox Text="{Binding FlatData.MachDescr}" HorizontalAlignment="Stretch" Width="135" />
             <!--<Button Content="f" Width="15"                        Command="{Binding ShowSupplierInfoGridCommandTo}"/>-->
@@ -56,7 +56,7 @@
         <TextBlock Text="Primary Model : " Grid.Row="2" Grid.Column="0"  Margin="2"/>
         <TextBlock Text="NumberOfMachines : " Grid.Row="2" Grid.Column="2"  Margin="2" />
 
-        <CheckBox IsChecked="{Binding FlatData.PrimaryModel, Mode=TwoWay}" Grid.Row="2" Grid.Column="1"  Margin="2"  HorizontalAlignment="Stretch" />
+        <CheckBox IsChecked="{Binding FlatData.PrimaryModel, Mode=TwoWay}" Grid.Row="2" Grid.Column="1"  Margin="2,8,0,0"  HorizontalAlignment="Stretch" />
         <TextBox Text="{Binding FlatData.NumberOfMachines, Mode=TwoWay}" Grid.Row="2" Grid.Column="3"   Margin="2" 
                   IsReadOnly="{Binding FlatData.PrimaryModel, Converter={StaticResource InvertBoolConverter}}"
                  HorizontalAlignment="Stretch"  />
@@ -69,7 +69,7 @@
          IsChecked="{Binding ShowDeleted, Mode=TwoWay}"  Margin = "1" Background="Beige" BorderBrush="Black" 
          Width = "120" HorizontalAlignment = "Center" >
             </ToggleButton>
-            <TextBlock Text="Delete : " FontWeight="Bold" FontSize="14"  Margin="1"/>
+            <TextBlock Text="Delete : " FontWeight="Bold"   Margin="1"/>
             <CheckBox IsChecked="{Binding FlatData.IsDeleted, Mode=TwoWay}"  Margin="1" VerticalAlignment="Center"  />
 
 
@@ -119,22 +119,22 @@
                             <ComboBox ItemsSource="{Binding MachTypes}" SelectedItem="{Binding FlatData.MachineType , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="2"/>
                             <ComboBox ItemsSource="{Binding MachStatuses}" SelectedItem="{Binding FlatData.Status , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Grid.Row="0" Grid.Column="3" Margin="2"/>
 
-                            <TextBox Text="{Binding FlatData.ProductionRate, Mode=TwoWay}" Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Stretch" Width="135" Margin="2" />
-                            <TextBox Text="{Binding FlatData.FailureRate, Mode=TwoWay}"  Grid.Row="2" Grid.Column="3" HorizontalAlignment="Stretch" Width="135" IsReadOnly="True" Margin="2"/>
-                            <TextBox Text="{Binding FlatData.EfficiencyRate, Mode=TwoWay}" Grid.Row="3" Grid.Column="1"  HorizontalAlignment="Stretch" Width="135" Margin="2"/>
-                            <TextBox Text="{Binding FlatData.AverageRepairTime, Mode=TwoWay}"  Grid.Row="3" Grid.Column="3" HorizontalAlignment="Stretch" Width="135" IsReadOnly="True" Margin="2"/>
-                            <TextBox Text="{Binding FlatData.TotalOperatingHours, Mode=TwoWay}" Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Stretch" Width="135"  Margin="2" />
-                            <TextBox Text="{Binding FlatData.NumberOfFailures, Mode=TwoWay}"  Grid.Row="4" Grid.Column="3" HorizontalAlignment="Stretch" Width="135" IsReadOnly="True" Margin="2"/>
+                            <TextBox Text="{Binding FlatData.ProductionRate, Mode=TwoWay}" Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Left" Width="135" Margin="2" />
+                            <TextBox Text="{Binding FlatData.FailureRate, Mode=TwoWay}"  Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" Width="135" IsReadOnly="True" Margin="2"/>
+                            <TextBox Text="{Binding FlatData.EfficiencyRate, Mode=TwoWay}" Grid.Row="3" Grid.Column="1"  HorizontalAlignment="Left" Width="135" Margin="2"/>
+                            <TextBox Text="{Binding FlatData.AverageRepairTime, Mode=TwoWay}"  Grid.Row="3" Grid.Column="3" HorizontalAlignment="Left" Width="135" IsReadOnly="True" Margin="2"/>
+                            <TextBox Text="{Binding FlatData.TotalOperatingHours, Mode=TwoWay}" Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Left" Width="135"  Margin="2" />
+                            <TextBox Text="{Binding FlatData.NumberOfFailures, Mode=TwoWay}"  Grid.Row="4" Grid.Column="3" HorizontalAlignment="Left" Width="135" IsReadOnly="True" Margin="2"/>
 
                             <DatePicker Name="dp1" Grid.Row="5" Grid.Column="1"  SelectedDate="{Binding FlatData.LastMaintenance , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="2" />
                             <DatePicker Name="dp2" Grid.Row="5" Grid.Column="3"  SelectedDate="{Binding FlatData.NextMaintenance , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="2" />
 
                             <DatePicker Name="dp3" Grid.Row="6" Grid.Column="1"  DisplayDate="{Binding FlatData.DateInstalled , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="2"/>
-                            <TextBox Text="{Binding FlatData.ModelYear, Mode=TwoWay}"  Grid.Row="6" Grid.Column="3" HorizontalAlignment="Stretch" Width="135" IsReadOnly="True" Margin="2"/>
+                            <TextBox Text="{Binding FlatData.ModelYear, Mode=TwoWay}"  Grid.Row="6" Grid.Column="3" HorizontalAlignment="Left" Width="135" IsReadOnly="True" Margin="2"/>
 
                             <StackPanel Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left"  Orientation="Horizontal" Margin="2">
-                                <TextBox Text="{Binding FlatData.Factory.Code, Mode=TwoWay}" HorizontalAlignment="left" Width="120" Height="18" />
-                                <Button Content="f" Width="15" Height="18"                     Command="{Binding ShowFactoryDataGridCommand}"/>
+                                <TextBox Text="{Binding FlatData.Factory.Code, Mode=TwoWay}" HorizontalAlignment="left" Width="120" Height="26"  />
+                                <Button Content="f" Width="20" Height="26"                     Command="{Binding ShowFactoryDataGridCommand}"/>
                             </StackPanel>
 
 

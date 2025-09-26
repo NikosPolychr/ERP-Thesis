@@ -112,9 +112,9 @@ namespace Erp.View
 
             var menuInv = new List<SubItem>();
             menuInv.Add(new SubItem("Inventories/Stock", new InventoryView()));
-            menuInv.Add(new SubItem("Inventory Control", new InventoryControlView()));
-            //menuInv.Add(new SubItem("Inventory optimization", new GurobiView()));
-            menuInv.Add(new SubItem("Inventory Diagrams", new InvVisualisationView()));
+            //menuInv.Add(new SubItem("Inventory Control", new InventoryControlView()));
+            ////menuInv.Add(new SubItem("Inventory optimization", new GurobiView()));
+            //menuInv.Add(new SubItem("Inventory Diagrams", new InvVisualisationView()));
 
             var Inventory = new ItemMenu("Inventory", menuInv, PackIconKind.Schedule);
 
@@ -136,10 +136,10 @@ namespace Erp.View
             #region SupplyChain
 
             var menuSpCh = new List<SubItem>();
-            menuSpCh.Add(new SubItem("Clustering VRP", new Clustering_Vrp_View()));
-            menuSpCh.Add(new SubItem("VRP", new VehicleRoutingView()));
-            menuSpCh.Add(new SubItem("SupplyChainViewModel", new SupplyChainView()));
-            menuSpCh.Add(new SubItem("VrpVisualisation" , new VrpVisView()));
+            menuSpCh.Add(new SubItem("Clustering TSP", new Clustering_Vrp_View()));
+            //menuSpCh.Add(new SubItem("VRP", new VehicleRoutingView()));
+            //menuSpCh.Add(new SubItem("SupplyChainViewModel", new SupplyChainView()));
+            //menuSpCh.Add(new SubItem("VrpVisualisation" , new VrpVisView()));
             var SupChain = new ItemMenu("Supply Chain", menuSpCh, PackIconKind.Schedule);
 
             #endregion

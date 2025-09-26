@@ -5842,6 +5842,7 @@ Inner JOIN Country as Co on Co.CountryId = P.CountryId
         #endregion
 
         #region Extra
+
         #region ERP Factory Program
 
         #region BasicFiles
@@ -6138,8 +6139,8 @@ WHERE
                         data.Assembly = (BasicEnums.Assembly)Enum.Parse(typeof(BasicEnums.Assembly), reader["Assembly"].ToString());
                         data.ItemType = (BasicEnums.ItemType)Enum.Parse(typeof(BasicEnums.ItemType), reader["ItemType"].ToString());
                         data.HoldingCost = float.Parse(reader["HoldingCost"].ToString());
-                        data.MaxInventory = int.Parse(reader["MaxInventory"].ToString());
-                        data.StoreTarget = int.Parse(reader["StoreTarget"].ToString());
+                        data.MaxInventory = reader["MaxInventory"] == DBNull.Value ? 100 : Convert.ToInt32(reader["MaxInventory"]);
+                        data.StoreTarget = reader["StoreTarget"] == DBNull.Value ? 100 : Convert.ToInt32(reader["StoreTarget"]);
 
                         data.Profit = float.Parse(reader["Profit"].ToString());
                         data.SalesPrice = float.Parse(reader["SalesPrice"].ToString());
@@ -14794,6 +14795,7 @@ ORDER BY Date ASC"
         #endregion
 
         #endregion
+
         public UserModel GetByUserName(string userName)
         {
             UserModel user = null;
@@ -14825,6 +14827,7 @@ ORDER BY Date ASC"
             }
             return user;
         }
+
         #endregion
     }
 }

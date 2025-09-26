@@ -108,36 +108,6 @@
 
                         </StackPanel>
 
-                        <syncfusion:SfDataGrid x:Name="sfGrid"
-                                                    Background="White"
-                                                    AllowSorting="True"
-                                                    ShowSortNumbers="True"
-                                                    AllowFiltering="True"
-                                                    AutoGenerateColumns="False"
-                                                    SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    Columns="{Binding SfGridColumns, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    ItemsSource="{Binding CollectionView , Mode=TwoWay , UpdateSourceTrigger=PropertyChanged}"
-                                                    ShowRowHeader="True" 
-                                                    FilterRowPosition="FixedTop"
-                                                    ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                                    ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                                                    ShowToolTip="True"
-                                                    AllowGrouping="True"
-                                                    AutoExpandGroups="True"
-                                                    ShowGroupDropArea="True" >
-
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.RowDataCommand,ElementName=sfGrid}" CommandParameter="{Binding}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </syncfusion:SfDataGrid>
-
-
-
-
-
-
                     </StackPanel>
                 </TabItem>
             </TabControl>

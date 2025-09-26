@@ -44,7 +44,7 @@
             <!--<Button Content="f" Width="15"                        Command="{Binding ShowSupplierInfoGridCommandTo}"/>-->
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="4"  HorizontalAlignment="Left" Orientation="Horizontal" Margin="2">
-            <Button x:Name="AddItem"  Width="110"  HorizontalAlignment="Left" Command="{Binding AddInventoryCommand}">
+            <Button x:Name="AddItem"  Width="160"  HorizontalAlignment="Left" Command="{Binding AddInventoryCommand}">
                 <TextBlock Text="Add New Inventory"/>
             </Button>
 
@@ -52,7 +52,7 @@
             <CheckBox IsChecked="{Binding FlatData.IsDeleted, Mode=TwoWay}"  Margin="2" VerticalAlignment="Center"  />
             <ToggleButton x:Name = "tb" Content = "Show Deleted"  
          IsChecked="{Binding ShowDeleted, Mode=TwoWay}"  Margin = "2" Background="Beige" BorderBrush="Black" 
-         Width = "108" HorizontalAlignment = "Center" >
+         Width = "115" HorizontalAlignment = "Center" >
             </ToggleButton>
         </StackPanel>
         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="8"  converters:MainStackPanelReadonly.IsEnabledBasedOnProperty="{Binding FlatData.InvCode}" >

@@ -133,6 +133,13 @@
     <Compile Include="CustomControls\DeleteButton.xaml.cs">
       <DependentUpon>DeleteButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\F7Popup.xaml.cs">
+      <DependentUpon>F7Popup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\F7PopupViewModel.cs" />
+    <Compile Include="CustomControls\F7PopupWindow.xaml.cs">
+      <DependentUpon>F7PopupWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataBase\BomDataEntity.cs" />
     <Compile Include="DataBase\CityDataEntity.cs" />
     <Compile Include="DataBase\COrderCartEntity.cs" />
@@ -306,6 +313,8 @@
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="Repositories\RepositoryBase.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="ViewModelSearch\Thesis\AirportsViewmodelSearch.cs" />
+    <Compile Include="ViewModelSearch\ViewModelBaseSearch.cs" />
     <Compile Include="ViewModel\BasicFiles\CityViewModel.cs" />
     <Compile Include="ViewModel\BasicFiles\CountryViewModel.cs" />
     <Compile Include="ViewModel\BasicFiles\ItemViewModel.cs" />
@@ -526,6 +535,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="CustomControls\DeleteButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\F7Popup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\F7PopupWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -934,5 +951,8 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\popupwindow.PNG" />
   </ItemGroup>
 </Project>

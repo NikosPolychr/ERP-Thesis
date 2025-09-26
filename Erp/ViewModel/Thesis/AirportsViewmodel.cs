@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows;
 using Syncfusion.UI.Xaml.Grid;
 using Erp.Model.BasicFiles;
+using Erp.CustomControls;
 
 namespace Erp.ViewModel.Thesis
 {
@@ -177,52 +178,41 @@ namespace Erp.ViewModel.Thesis
 
 
 
+
         private void ExecuteShowAirportsGridCommand(object obj)
         {
-            ClearColumns();
+            var f7Data = F7Common.F7Airports(ShowDeleted);
+            f7Data.F7Title = "Select Airport";
 
-            var F7input = F7Common.F7Airports(ShowDeleted);
-            F7key = F7input.F7key;
-            CollectionView = F7input.CollectionView;
-            var a = F7input.SfGridColumns;
-            foreach (var item in a)
-            {
-                this.sfGridColumns.Add(item);
-            }
-
+            var popup = new F7PopupWindow(f7Data, ChangeCanExecute);
+            bool? dialogResult = popup.ShowDialog();
         }
 
         private void ExecuteShowCitiesGridCommand(object obj)
         {
 
+            var f7Data = F7Common.F7City(ShowDeleted);
+            f7Data.F7Title = "Select City";
 
-            ClearColumns();
-
-            var F7input = F7Common.F7City(false);
-            F7key = F7input.F7key;
-            CollectionView = F7input.CollectionView;
-            var a = F7input.SfGridColumns;
-            foreach (var item in a)
-            {
-                this.sfGridColumns.Add(item);
-            }
+            var popup = new F7PopupWindow(f7Data, ChangeCanExecute);
+            bool? dialogResult = popup.ShowDialog();
 
         }
         public void ChangeCanExecute(object obj)
         {
 
-            if (F7key == "Airport")
+            var selectedItemProperty = obj.GetType().GetProperty("SelectedItem");
+            object selectedItem = selectedItemProperty?.GetValue(obj);
+
+            if (selectedItem is AirportData airport)
             {
                 FlatData = new AirportData();
-                FlatData.City = new CityData();
-                FlatData = (SelectedItem as AirportData);
-
-
+                FlatData = airport;
             }
-            if (F7key == "City")
+            if (selectedItem is CityData city)
             {
                 FlatData.City = new CityData();
-                FlatData.City = (SelectedItem as CityData);
+                FlatData.City = city;
 
             }
 

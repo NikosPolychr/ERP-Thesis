@@ -200,6 +200,7 @@ namespace Erp.CommonFiles
             GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
 
             GridData.F7key = "Airport";
+            GridData.F7Title = "Airports";
             return GridData;
         }
         public F7Data F7FL_Airports(bool ShowDeleted,AirportData Airport)

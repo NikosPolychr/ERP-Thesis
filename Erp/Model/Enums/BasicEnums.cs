@@ -138,13 +138,12 @@ namespace Erp.Model.Enums
             Retail,
             Wholesale
         }
+
         public enum Gender
         {
             Male,
-            Female
-            
+            Female       
         }
-
 
         public enum ItemType
         {

@@ -31,13 +31,13 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Item Code : " FontWeight="Bold" FontSize="14"  Grid.Row="1" Grid.Column="0" Margin="2" />
+        <TextBlock Text="Item Code : " FontWeight="Bold"   Grid.Row="1" Grid.Column="0" Margin="2" />
         <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left"  Orientation="Horizontal" Margin="2">
             <TextBox Text="{Binding FlatData.ItemCode, Mode=TwoWay}" HorizontalAlignment="left" Width="115"  />
             <Button Content="f" Width="20"                        Command="{Binding ShowItemDataGridCommand}"/>
         </StackPanel>
 
-        <TextBlock Text="Item Descr : " FontWeight="Bold" FontSize="14" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="2"/>
+        <TextBlock Text="Item Descr : " FontWeight="Bold"  Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="2"/>
         <StackPanel Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch"  Orientation="Horizontal" Margin="2">
             <TextBox Text="{Binding FlatData.ItemDescr, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="135" />
         </StackPanel>
@@ -49,7 +49,7 @@
          IsChecked="{Binding ShowDeleted, Mode=TwoWay}"  Margin = "1" Background="Beige" BorderBrush="Black" 
          Width = "120" HorizontalAlignment = "Center" >
             </ToggleButton>
-            <TextBlock Text="Delete : " FontWeight="Bold" FontSize="14"  Margin="1"/>
+            <TextBlock Text="Delete : " FontWeight="Bold"   Margin="1"/>
             <CheckBox IsChecked="{Binding FlatData.IsDeleted, Mode=TwoWay}"  Margin="1" VerticalAlignment="Center"  />
 
         </StackPanel>

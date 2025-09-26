@@ -12,7 +12,8 @@ namespace Erp.Model
     public class F7Data : INotifyPropertyChanged {
 
 
-       public string F7key { get; set; }
+        public string F7key { get; set; }
+        public string F7Title { get; set; }
 
         public Columns SfGridColumns;
 
