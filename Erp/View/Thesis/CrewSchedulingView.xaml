@@ -48,8 +48,6 @@
             <TextBox Text="{Binding InputData.Descr, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="135" />
         </StackPanel>
 
-
-
         <StackPanel Grid.Row="1" Grid.Column="4" HorizontalAlignment="Stretch"  Orientation="Horizontal" Margin="15,2,2,2"  >
             <Button x:Name="AddItem"  Width="220"  Margin="1" HorizontalAlignment="Left" Command="{Binding AddCommand}">
                 <TextBlock Text="Add New Crew Rostering"/>
@@ -122,6 +120,7 @@
                                         
                                         <TextBlock Text="Position: " Grid.Row="3" Grid.Column="0" Margin="2"/>
                                         <TextBlock Text="Problem Type: " Grid.Row="3" Grid.Column="2" Margin="2"/>
+                                        <TextBlock Text="Optimizer Set Code : "   Grid.Row="4" Grid.Column="0" Margin="2" />
 
                                         <xctk:DateTimePicker Value="{Binding InputData.DateFrom, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
                              Format="Custom" 
@@ -145,6 +144,11 @@
                                         <ComboBox Grid.Row="3"  Grid.Column="1" ItemsSource="{Binding EmployeeTypes}"  SelectedItem="{Binding InputData.Position , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  Margin="2"/>
                                         <ComboBox Grid.Row="3"  Grid.Column="3" ItemsSource="{Binding CSTypes}"  SelectedItem="{Binding InputData.CSType , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  Margin="2"/>
 
+                                        <StackPanel Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left"  Orientation="Horizontal" Margin="2" >
+                                            <TextBox Text="{Binding InputData.OptimizerSettingsData.Code}" HorizontalAlignment="left" Width="162"   />
+                                            <Button Content="f" Width="20"                    Command="{Binding ShowOptimizerSettingsGridCommand}"/>
+                                        </StackPanel>
+                                        
                                     </Grid>
                                 </StackPanel>
 
@@ -178,6 +182,11 @@
 
                             <Button x:Name="Calculate_Cplex"   HorizontalAlignment="Left" Margin="4" Width="230" Command="{Binding CalculateCS_CPLEX}">
                                 <TextBlock Text="Calculate Crew Rostering" FontWeight="Bold"/>
+                            </Button>
+
+
+                            <Button x:Name="Calculate_Cplex_CPlus"   HorizontalAlignment="Left" Margin="4" Width="230" Command="{Binding CalculateCS_Cplusplus}">
+                                <TextBlock Text="Calculate CS C++" FontWeight="Bold"/>
                             </Button>
                         </StackPanel>
 

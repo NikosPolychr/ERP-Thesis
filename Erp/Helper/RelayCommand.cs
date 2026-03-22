@@ -17,7 +17,9 @@ namespace Erp.Helper
 
         public RelayCommand2(Action<object> execute)
             : this(execute, DefaultCanExecute)
+        
         {
+
         }
 
         public RelayCommand2(Action<object> execute, Predicate<object> canExecute)

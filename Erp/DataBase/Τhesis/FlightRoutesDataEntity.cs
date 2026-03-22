@@ -43,8 +43,12 @@ namespace Erp.DataBase.Τhesis
         [Column(TypeName = "int")]
         public int? Complement_Cabin_Manager { get; set; }
 
+        [Column(TypeName = "varchar(30)")]
+        public string RouteCateg { get; set; }
+
         [Column(TypeName = "int")]
         public int? Complement_Flight_Attendant { get; set; }
+
         [Column(TypeName = "bit")]
         public bool? IsDeleted { get; set; }
         public int AirportId { get; set; }

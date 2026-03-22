@@ -35,6 +35,29 @@ namespace Erp.Model.Thesis.CrewScheduling
         private int _RoutesPenalty;
         private int _BoundsPenalty;
 
+
+
+        private List<MinMaxData> _MinMaxList { get; set; }
+        private List<WithWithoutData> _WithWithoutList { get; set; }
+
+        private OptimizerSettingsData _OptimizerSettingsData;
+
+        public List<MinMaxData> MinMaxList
+        {
+            get { return _MinMaxList; }
+            set { _MinMaxList = value; OnPropertyChanged("MinMaxList"); }
+        }
+        public List<WithWithoutData> WithWithoutList
+        {
+            get { return _WithWithoutList; }
+            set { _WithWithoutList = value; OnPropertyChanged("WithWithoutList"); }
+        }
+        public OptimizerSettingsData OptimizerSettingsData
+        {
+            get { return _OptimizerSettingsData; }
+            set { _OptimizerSettingsData = value; OnPropertyChanged("OptimizerSettingsData"); }
+        }
+
         public BasicEnums.CSType CSType
         {
             get { return _CSType; }
@@ -98,6 +121,7 @@ namespace Erp.Model.Thesis.CrewScheduling
             set { _Position = value; OnPropertyChanged("Position"); }
         }
 
+        
         public ObservableCollection<FlightRoutesData> FlightRoutesData
         {
             get { return _FlightRoutesData; }
@@ -118,7 +142,9 @@ namespace Erp.Model.Thesis.CrewScheduling
 
         #endregion
 
-        #region Dictionaries 
+        #region Dictionaries
+
+        #region Main Dictionaries 
         public Dictionary<int, DateTime> DatesIndexMap { get; set; }
         public Dictionary<int, string> EmployeesIndexMap { get; set; }
 
@@ -142,7 +168,11 @@ namespace Erp.Model.Thesis.CrewScheduling
 
         public Dictionary<int, (double, double)> EmpBounds_Dict { get; set; } //Dictionary<Employee, (LowerBound, UpperBound)>
         #endregion
+    
+        #endregion  
+        
         #endregion
+
 
 
 

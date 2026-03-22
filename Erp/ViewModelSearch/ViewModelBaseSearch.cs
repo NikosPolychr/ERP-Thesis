@@ -11,6 +11,14 @@ namespace Erp.ViewModelSearch
     public abstract class ViewModelBaseSearch : INotifyPropertyChanged
     {
 
+        public event Action<bool?> RequestClose;
+
+        // Protected helper so derived classes can raise it
+        protected void RaiseRequestClose(bool? result)
+        {
+            RequestClose?.Invoke(result);
+        }
+
         private bool _showDeleted;
 
         public bool ShowDeleted

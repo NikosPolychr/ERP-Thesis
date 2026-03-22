@@ -1,4 +1,5 @@
 ﻿using Erp.Model.BasicFiles;
+using Erp.Model.Enums;
 using Erp.Model.Interfaces;
 using Erp.ViewModel.Thesis;
 using System;
@@ -26,6 +27,19 @@ namespace Erp.Model.Thesis.CrewScheduling
 
         private string _StartDate_String;
         private string _EndDate_String;
+        private bool genderapplies;
+        public bool Genderapplies
+        {
+            get { return genderapplies; }
+            set { genderapplies = value; OnPropertyChanged("Genderapplies"); }
+        }
+        private BasicEnums.RouteCategory _RouteCateg { get; set; }
+
+        public BasicEnums.RouteCategory RouteCateg
+        {
+            get { return _RouteCateg; }
+            set { _RouteCateg = value; OnPropertyChanged("RouteCateg"); }
+        }
         private bool _Selected { get; set; }
 
         public bool Selected

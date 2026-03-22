@@ -36,7 +36,7 @@
         <TextBlock Text="Airport Code : " FontWeight="Bold"   Grid.Row="1" Grid.Column="0" Margin="2" />
         <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left"  Orientation="Horizontal" Margin="2" >
             <TextBox Text="{Binding FlatData.Code}" HorizontalAlignment="left" Width="115"   />
-            <Button Content="f" Width="20"                    Command="{Binding ShowAirportsGridCommand}"/>
+            <Button Content="f" Width="20"  Command="{Binding ShowAirportsGridCommand}"/>
         </StackPanel>
 
         <TextBlock Text="Airport Descr : " FontWeight="Bold"  Grid.Row="1" Grid.Column="2" Margin="2" />

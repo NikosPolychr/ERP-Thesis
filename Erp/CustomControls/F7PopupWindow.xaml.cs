@@ -1,9 +1,12 @@
 ﻿using Erp.Model;
 using System;
+using System.Runtime.InteropServices;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-
+using System.Windows.Media;
+using System.Windows.Controls;
 namespace Erp.CustomControls
 {
     /// <summary>
@@ -140,15 +143,47 @@ namespace Erp.CustomControls
             if (this.WindowState == WindowState.Normal)
             {
                 this.WindowState = WindowState.Maximized;
-                MaximizeButton.Content = "❐";
-                MaximizeButton.ToolTip = "Restore Down";
+                //MaximizeButton.Content = "❐";
+                //MaximizeButton.ToolTip = "Restore Down";
             }
             else
             {
                 this.WindowState = WindowState.Normal;
-                MaximizeButton.Content = "□";
-                MaximizeButton.ToolTip = "Maximize";
+                //MaximizeButton.Content = "□";
+                //MaximizeButton.ToolTip = "Maximize";
             }
         }
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
+        private void pnlControlBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            WindowInteropHelper helper = new WindowInteropHelper(this);
+            SendMessage(helper.Handle, 161, 2, 0);
+        }
+
+        private void pnlControlBar_MouseEnter(object sender, MouseEventArgs e)
+        {
+            this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+
+        }
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Μην κάνεις drag αν πατήθηκε Button
+            if (e.OriginalSource is DependencyObject dep)
+            {
+                while (dep != null)
+                {
+                    if (dep is System.Windows.Controls.Button)
+                        return;
+
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+            }
+
+            if (e.ButtonState == MouseButtonState.Pressed)
+                this.DragMove();
+        }
+
+
     }
 }

@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="Erp.ViewSearch.AirportsSearchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewModel="clr-namespace:Erp.ViewModelSearch.Thesis"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <viewModel:AirportSearchViewModel/>
+    </UserControl.DataContext>
+     <Grid>
+        <syncfusion:SfDataGrid  x:Name="dataGrid"
+                                AllowSorting="True"
+                                ShowSortNumbers="True"
+                                AllowFiltering="True"
+                                AllowEditing="True"
+                                AllowDeleting="True"    
+                                AddNewRowPosition ="FixedTop"
+                                Background="White"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="5"
+                                LiveDataUpdateMode="AllowDataShaping"                                
+                                ItemsSource="{Binding Data, Mode=TwoWay , UpdateSourceTrigger=PropertyChanged }" 
+                                ShowRowHeader="True" 
+                                FilterRowPosition="FixedTop"
+                                ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                ShowToolTip="True"
+                                AllowGrouping="True"
+                                ShowGroupDropArea="True" 
+                                AutoGenerateColumns="True">
+
+            <!--<syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridTextColumn MappingName="Code" HeaderText="Airport Code"/>
+                <syncfusion:GridTextColumn MappingName="Descr" HeaderText="Airport Descr"/>
+
+                <syncfusion:GridTextColumn MappingName="City.CityDescr" HeaderText="City Descr" />
+                <syncfusion:GridTextColumn MappingName="City.PrefDescr" HeaderText="Prefecture Descr" />
+                <syncfusion:GridTextColumn MappingName="City.CountryDescr" HeaderText="Country Descr" />
+
+                <syncfusion:GridCheckBoxColumn MappingName="IsDeleted" HeaderText="Deleted"/>
+
+
+
+            </syncfusion:SfDataGrid.Columns>-->
+        </syncfusion:SfDataGrid>
+                
+        </Grid>
+</UserControl>

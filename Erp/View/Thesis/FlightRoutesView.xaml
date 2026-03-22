@@ -97,7 +97,12 @@
                             <TextBlock Text="Total Time : "   Grid.Row="4" Grid.Column="2" Margin="2" />
                             <TextBlock Text="Flight Time : "   Grid.Row="5" Grid.Column="0" Margin="2" />
                             <TextBlock Text="Ground Time : "   Grid.Row="5" Grid.Column="2" Margin="2" />
+                            
+                            <TextBlock Text="Route Category : "    Grid.Row="6" Grid.Column="0" Margin="2" />
 
+                            <ComboBox ItemsSource="{Binding RouteCategories}"  SelectedItem="{Binding FlatData.RouteCateg , UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                      Grid.Row="6" Grid.Column="1" Margin="2"/>
+                            
                             <TextBox Text="{Binding FlatData.Complement_Captain , Mode=TwoWay}" Grid.Row="2" Grid.Column="1" HorizontalAlignment="left" Width="155" Margin="2"  />
                             <TextBox Text="{Binding FlatData.Complement_FO , Mode=TwoWay}" Grid.Row="2" Grid.Column="3" HorizontalAlignment="left" Width="155"  Margin="2" />
                             <TextBox Text="{Binding FlatData.Complement_Cabin_Manager , Mode=TwoWay}" Grid.Row="3" Grid.Column="1" HorizontalAlignment="left" Width="155" Margin="2"  />

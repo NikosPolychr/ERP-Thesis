@@ -34,6 +34,10 @@ using Erp.Model.Thesis.VacationPlanning;
 using Microsoft.EntityFrameworkCore.Internal;
 using Erp.View.Thesis.CustomButtons;
 using Erp.Model.Thesis.CrewScheduling;
+using static ILOG.CPLEX.Cplex.Callback.Context;
+using Erp.Model.Thesis.Filters;
+using System.Text;
+using Erp.Model.Thesis.CrewScheduling.OptimimzerSettings;
 
 
 namespace Erp.CommonFiles
@@ -43,6 +47,108 @@ namespace Erp.CommonFiles
     {
 
         #region Thesis
+
+        #region Setup
+
+        #region Country
+
+        public ObservableCollection<CrewCategData> GetCrewCategData(bool ShowDeleted)
+        {
+            ObservableCollection<CrewCategData> DataList = new ObservableCollection<CrewCategData>();
+
+            string FilterStr = "";
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (ShowDeleted == false)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
+                    FilterStr = String.Format(@" and IsDeleted =@ShowDeleted");
+                }
+                command.CommandText = string.Format(@"select CrewCatId,CrewCatCode,CrewCatDescr,IsDeleted from CrewCateg Where 1=1 {0}", FilterStr);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        CrewCategData data = new CrewCategData();
+
+                        data.CrewCatId = int.Parse(reader["CrewCatId"].ToString());
+                        data.CrewCatCode = reader["CrewCatCode"].ToString();
+                        data.CrewCatDescr = reader["CrewCatDescr"].ToString();
+                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                        DataList.Add(data);
+                    }
+                }
+
+                connection.Close();
+
+            }
+
+            return DataList;
+        }
+
+
+        public bool SaveCrewCategData(ObservableCollection<CrewCategData> Data)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+
+
+                    bool hasChanges = false;
+                    foreach (var row in Data)
+                    {
+                        var existingrow = dbContext.CrewCateg.SingleOrDefault(b => b.CrewCatId == row.CrewCatId);
+
+                        if (existingrow == null)
+                        {
+                            CrewCategDataEntity newrow = new CrewCategDataEntity();
+                            newrow.CrewCatCode = row.CrewCatCode;
+                            newrow.CrewCatDescr = row.CrewCatDescr;
+                            newrow.IsDeleted = false;
+                            dbContext.CrewCateg.Add(newrow);
+                            hasChanges = true;
+                        }
+                        else if (existingrow != null)
+                        {
+
+                            existingrow.CrewCatCode = row.CrewCatCode;
+                            existingrow.CrewCatDescr = row.CrewCatDescr;
+                            existingrow.IsDeleted = row.IsDeleted;
+
+                            hasChanges = true;
+
+                        }
+
+
+                    }
+
+                    if (hasChanges)
+                    {
+                        dbContext.SaveChanges();
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveCrewCategData", "Notes");
+                return false;
+            }
+        }
+
+
+
+        #endregion
+
+        #endregion
 
         #region Vacation Planning File 
 
@@ -69,7 +175,7 @@ namespace Erp.CommonFiles
                 command.Parameters.AddWithValue("@Position", employeeType.ToString());
                 FilterStr = string.Concat(FilterStr, " AND E.Position = @Position");
 
-                command.CommandText = string.Format(@"SELECT E.EmployeeID, E.Code, E.Descr, E.LowerBound, E.UpperBound,  
+                command.CommandText = string.Format(@"SELECT E.EmployeeID, E.Code, E.Descr, E.LowerBound, E.UpperBound,E.Gender,  
 E.Position,E.Seniority,E.IsDeleted
 FROM Employees AS E
 WHERE 1=1 {0}
@@ -91,6 +197,8 @@ ORDER BY E.Seniority", FilterStr);
                         data.Code = reader["Code"].ToString();
                         data.Descr = reader["Descr"].ToString();
                         data.Position = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position"].ToString());
+                        data.Gender = (BasicEnums.Gender)Enum.Parse(typeof(BasicEnums.Gender), reader["Gender"].ToString());
+
                         data.Seniority = int.Parse(reader["Seniority"].ToString());
                         data.EmpCrSettings.LowerBound = int.Parse(reader["LowerBound"].ToString());
                         data.EmpCrSettings.UpperBound = int.Parse(reader["UpperBound"].ToString());
@@ -794,8 +902,259 @@ INNER JOIN Employees as E ON E.EmployeeID =L.EmpId
         }
         #endregion
 
-        #region Extra
+        #region Tab Crew Categs
 
+        public ObservableCollection<EmpCrewCategsData> GetEMPCrewCategData(string finalEmployeeCode, bool addFlag)
+        {
+            ObservableCollection<EmpCrewCategsData> data = new ObservableCollection<EmpCrewCategsData>();
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                command.Parameters.AddWithValue("@finalEmployeeCode", finalEmployeeCode);
+
+                command.CommandText = @"
+            Select EmployeeID from Employees 
+            Where Code = @finalEmployeeCode";
+
+                int finalEmployeeId = (int)command.ExecuteScalar();
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("@finalEmployeeId", finalEmployeeId);
+
+                command.CommandText = @"
+                select C.CrewCatId,C.CrewCatCode,C.CrewCatDescr
+                From CrewCateg as C
+                INNER JOIN EmpCrewCategs AS E ON E.CrewCategId = C.CrewCatId
+                WHERE E.EmpId = @finalEmployeeId";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        CrewCategData categdata = new CrewCategData();
+                        EmpCrewCategsData EMPCData = new EmpCrewCategsData();
+
+                        EMPCData.FinalEmployeeId = finalEmployeeId;
+
+                        categdata.CrewCatId = int.Parse(reader["CrewCatId"].ToString());
+                        categdata.CrewCatCode = reader["CrewCatCode"].ToString();
+                        categdata.CrewCatDescr = reader["CrewCatDescr"].ToString();
+
+
+                        EMPCData.CrewCateg = categdata;
+
+
+                        EMPCData.CrewCatFlag = true;
+                        EMPCData.NewCrewCatFlag = false;
+                        EMPCData.ExistingFlag = true;
+
+                        data.Add(EMPCData);
+                    }
+                }
+
+                if (addFlag)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@finalEmployeeId", finalEmployeeId);
+
+                    command.CommandText = @"
+select C.CrewCatId,C.CrewCatCode,C.CrewCatDescr
+From CrewCateg as C
+WHERE NOT EXISTS (SELECT 1 FROM EmpCrewCategs WHERE CrewCategId = C.CrewCatId AND EmpId = @finalEmployeeId) 
+AND C.isDeleted = 0";
+
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            CrewCategData crewcatdata = new CrewCategData();
+                            EmpCrewCategsData EMPCData = new EmpCrewCategsData();
+
+                            EMPCData.FinalEmployeeId = finalEmployeeId;
+
+                            crewcatdata.CrewCatId = int.Parse(reader["CrewCatId"].ToString());
+                            crewcatdata.CrewCatCode = reader["CrewCatCode"].ToString();
+                            crewcatdata.CrewCatDescr = reader["CrewCatDescr"].ToString();
+
+
+                            EMPCData.CrewCateg = crewcatdata;
+
+                            EMPCData.CrewCatFlag = false;
+                            EMPCData.NewCrewCatFlag = true;
+                            EMPCData.ExistingFlag = false;
+
+                            data.Add(EMPCData);
+                        }
+                    }
+                }
+
+                connection.Close();
+                return data;
+            }
+        }
+        public bool SaveEMPCrewCategData(ObservableCollection<EmpCrewCategsData> Data, string FinalEmployeeCode)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Retrieve the final item from the Rmaster table
+                    var employee = dbContext.Employees.SingleOrDefault(r => r.Code == FinalEmployeeCode);
+
+                    if (employee == null)
+                    {
+                        // Final item not found
+                        return false;
+                    }
+
+                    int finalEmployeeId = employee.EmployeeID;
+
+                    int result = 0;
+                    foreach (var row in Data)
+                    {
+                        int EMPCatId = row.CrewCateg.CrewCatId;
+                        var existingCat= dbContext.EmpCrewCategs.SingleOrDefault(b => b.EmpId == finalEmployeeId && b.CrewCategId == EMPCatId);
+
+                        if (existingCat == null && row.CrewCatFlag == true && row.NewCrewCatFlag == true)
+                        {
+                            // Insert new bom
+                            EmpCrewCategsDataEntity newcat = new EmpCrewCategsDataEntity
+                            {
+                                EmpId = finalEmployeeId,
+                                CrewCategId = EMPCatId
+                            };
+
+                            dbContext.EmpCrewCategs.Add(newcat);
+                            result += 1;
+                        }
+                        else if (row.ExistingFlag == true && row.CrewCatFlag == false)
+                        {
+                            dbContext.EmpCrewCategs.Remove(existingCat);
+
+                        }
+                        //else if (row.ExistingFlag == true && row.BomItemFlag == true)
+                        //{
+                        //    // Update existing bom
+                        //    existingBom.Percentage = (float)row.BomPercentage;
+                        //}
+                    }
+
+                    dbContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveEMPCrewCategData", "Notes");
+                return false;
+            }
+        }
+
+        #region Language
+
+        public ObservableCollection<LanguageData> GetLanguageData(bool ShowDeleted)
+        {
+            ObservableCollection<LanguageData> DataList = new ObservableCollection<LanguageData>();
+
+            string FilterStr = "";
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (ShowDeleted == false)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
+                    FilterStr = String.Format(@" and IsDeleted =@ShowDeleted");
+                }
+                command.CommandText = string.Format(@"select LId,LCode,LDescr,IsDeleted from Language Where 1=1 {0}", FilterStr);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        LanguageData data = new LanguageData();
+
+                        data.Id = int.Parse(reader["LId"].ToString());
+                        data.Code = reader["LCode"].ToString();
+                        data.Descr = reader["LDescr"].ToString();
+                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                        DataList.Add(data);
+                    }
+                }
+
+                connection.Close();
+
+            }
+
+            return DataList;
+        }
+
+
+        public bool SaveLanguageData(ObservableCollection<LanguageData> Data)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+
+
+                    bool hasChanges = false;
+                    foreach (var row in Data)
+                    {
+                        var existingrow = dbContext.Language.SingleOrDefault(b => b.LId == row.Id);
+
+                        if (existingrow == null)
+                        {
+                            LanguageDataEntity newrow = new LanguageDataEntity();
+                            newrow.LCode = row.Code;
+                            newrow.LDescr = row.Descr;
+                            newrow.IsDeleted = false;
+                            dbContext.Language.Add(newrow);
+                            hasChanges = true;
+                        }
+                        else if (existingrow != null)
+                        {
+
+                            existingrow.LCode = row.Code;
+                            existingrow.LDescr = row.Descr;
+                            existingrow.IsDeleted = row.IsDeleted;
+
+                            hasChanges = true;
+
+
+
+                        }
+
+
+                    }
+
+                    if (hasChanges)
+                    {
+                        dbContext.SaveChanges();
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveLanguageData", "Notes");
+                return false;
+            }
+        }
+
+
+
+        #endregion
+
+        #endregion
         #region 3dTab Languages
         public ObservableCollection<EMPLanguageData> GetEMPLanguageData(string finalEmployeeCode, bool addLanguageFlag)
         {
@@ -947,107 +1306,8 @@ AND L.isDeleted = 0";
             }
         }
 
-        #region Language
-
-        public ObservableCollection<LanguageData> GetLanguageData(bool ShowDeleted)
-        {
-            ObservableCollection<LanguageData> DataList = new ObservableCollection<LanguageData>();
-
-            string FilterStr = "";
-
-            using (var connection = GetConnection())
-            using (var command = new SqlCommand())
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                if (ShowDeleted == false)
-                {
-                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
-                    FilterStr = String.Format(@" and IsDeleted =@ShowDeleted");
-                }
-                command.CommandText = string.Format(@"select LId,LCode,LDescr,IsDeleted from Language Where 1=1 {0}", FilterStr);
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        LanguageData data = new LanguageData();
-
-                        data.Id = int.Parse(reader["LId"].ToString());
-                        data.Code = reader["LCode"].ToString();
-                        data.Descr = reader["LDescr"].ToString();
-                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
-
-                        DataList.Add(data);
-                    }
-                }
-
-                connection.Close();
-
-            }
-
-            return DataList;
-        }
 
 
-        public bool SaveLanguageData(ObservableCollection<LanguageData> Data)
-        {
-            try
-            {
-                using (var dbContext = new ErpDbContext(options))
-                {
-
-
-                    bool hasChanges = false;
-                    foreach (var row in Data)
-                    {
-                        var existingrow = dbContext.Language.SingleOrDefault(b => b.LId == row.Id);
-
-                        if (existingrow == null)
-                        {
-                            LanguageDataEntity newrow = new LanguageDataEntity();
-                            newrow.LCode = row.Code;
-                            newrow.LDescr = row.Descr;
-                            newrow.IsDeleted = false;
-                            dbContext.Language.Add(newrow);
-                            hasChanges = true;
-                        }
-                        else if (existingrow != null)
-                        {
-
-                            existingrow.LCode = row.Code;
-                            existingrow.LDescr = row.Descr;
-                            existingrow.IsDeleted = row.IsDeleted;
-
-                            hasChanges = true;
-
-
-
-                        }
-
-
-                    }
-
-                    if (hasChanges)
-                    {
-                        dbContext.SaveChanges();
-                    }
-
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, "SaveLanguageData", "Notes");
-                return false;
-            }
-        }
-
-
-
-        #endregion
-
-        #endregion
         #endregion
         #endregion
 
@@ -4600,20 +4860,19 @@ INNER JOIN City ON City.CityId = A.CityId
                     {
                         if (reader.Read())
                         {
-                            AirportData data = new AirportData();
-                            data.City = new CityData();
+                            FlatData.City = new CityData();
 
 
-                            data.Id = int.Parse(reader["AirportID"].ToString());
-                            data.Code = reader["AirportCode"].ToString();
-                            data.Descr = reader["AirportDescr"].ToString();
+                            FlatData.Id = int.Parse(reader["AirportID"].ToString());
+                            FlatData.Code = reader["AirportCode"].ToString();
+                            FlatData.Descr = reader["AirportDescr"].ToString();
 
-                            data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+                            FlatData.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
 
 
-                            data.City.CityId = int.Parse(reader["CityId"].ToString());
-                            data.City.CityCode = reader["CityCode"].ToString();
-                            data.City.CityDescr = reader["CityDescr"].ToString();
+                            FlatData.City.CityId = int.Parse(reader["CityId"].ToString());
+                            FlatData.City.CityCode = reader["CityCode"].ToString();
+                            FlatData.City.CityDescr = reader["CityDescr"].ToString();
                         }
                     }
 
@@ -4690,6 +4949,86 @@ Inner JOIN Country on Prefecture.CountryId = Country.CountryId
 
             return DataList;
         }
+
+        public ObservableCollection<AirportData> GetAirportsFilterData(bool showDeleted, AirportsFilterData filter)
+        {
+            var dataList = new ObservableCollection<AirportData>();
+            var filterStr = new StringBuilder();
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (!string.IsNullOrWhiteSpace(filter?.City?.CityCode))
+                {
+                    command.Parameters.AddWithValue("@CityCode", filter.City.CityCode);
+                    filterStr.Append(" AND City.CityCode = @CityCode");
+                }
+
+                if (!string.IsNullOrWhiteSpace(filter?.City?.CountryCode))
+                {
+                    command.Parameters.AddWithValue("@CountryCode", filter.City.CountryCode);
+                    filterStr.Append(" AND Country.CountryCode = @CountryCode");
+                }
+
+                if (!showDeleted)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", false);
+                    filterStr.Append(" AND A.IsDeleted = @ShowDeleted");
+                }
+
+                command.CommandText = $@"
+            SELECT 
+                A.AirportID,
+                A.AirportCode,
+                A.AirportDescr,
+                A.IsDeleted,
+                City.CityId,
+                City.CityCode,
+                City.CityDescr,
+                Country.CountryCode,
+                Country.CountryDescr,
+                Prefecture.PrefCode,
+                Prefecture.PrefDescr
+            FROM Airports AS A
+            INNER JOIN City ON City.CityId = A.CityId
+            INNER JOIN Prefecture ON Prefecture.PrefId = City.PrefId 
+            INNER JOIN Country ON Prefecture.CountryId = Country.CountryId
+            WHERE 1=1 {filterStr}";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var data = new AirportData
+                        {
+                            City = new CityData
+                            {
+                                CityId = Convert.ToInt32(reader["CityId"]),
+                                CityCode = reader["CityCode"].ToString(),
+                                CityDescr = reader["CityDescr"].ToString(),
+                                PrefCode = reader["PrefCode"].ToString(),
+                                PrefDescr = reader["PrefDescr"].ToString(),
+                                CountryCode = reader["CountryCode"].ToString(),
+                                CountryDescr = reader["CountryDescr"].ToString()
+                            },
+                            Id = Convert.ToInt32(reader["AirportID"]),
+                            Code = reader["AirportCode"].ToString(),
+                            Descr = reader["AirportDescr"].ToString(),
+                            IsDeleted = Convert.ToBoolean(reader["IsDeleted"])
+                        };
+
+                        dataList.Add(data);
+                    }
+                }
+            }
+
+            return dataList;
+        }
+
+
         #endregion
 
         #region FlightLegs
@@ -4969,6 +5308,7 @@ Inner Join Airports as ATo on ATo.AirportID = F.AirportTo
                         existing.Complement_Cabin_Manager = flatData.Complement_Cabin_Manager;
                         existing.Complement_Flight_Attendant = flatData.Complement_Flight_Attendant;
                         existing.FlightTime = flatData.FlightTime;
+                        existing.RouteCateg = flatData.RouteCateg.ToString();
                         existing.IsDeleted = flatData.IsDeleted;
 
                         dbContext.SaveChanges();
@@ -5016,6 +5356,7 @@ Inner Join Airports as ATo on ATo.AirportID = F.AirportTo
                         newItem.Complement_FO = 1;
                         newItem.Complement_Cabin_Manager = 1;
                         newItem.Complement_Flight_Attendant = 3;
+                        newItem.RouteCateg = BasicEnums.RouteCategory.RouteCat1.ToString();
                         newItem.IsDeleted = false;
 
 
@@ -5064,7 +5405,7 @@ Inner Join Airports as ATo on ATo.AirportID = F.AirportTo
                         FilterStr = String.Format(@" and F.Code =@Code");
 
                     }
-                    command.CommandText = string.Format(@"select F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,F.GroundTime,F.TotalTime,F.IsDeleted,
+                    command.CommandText = string.Format(@"select F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,F.GroundTime,F.TotalTime,F.IsDeleted,F.RouteCateg,
 F.Complement_Captain AS CCA,F.Complement_FO AS CFO, F.Complement_Flight_Attendant AS CFA, F.Complement_Cabin_Manager AS CCM, 
 A.AirportID ,A.AirportCode,A.AirportDescr
 From FlightRoutes as F
@@ -5098,6 +5439,8 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                             data.Airport.Id = int.Parse(reader["AirportID"].ToString());
                             data.Airport.Code = reader["AirportCode"].ToString();
                             data.Airport.Descr = reader["AirportDescr"].ToString();
+
+                            data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
 
                             data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
 
@@ -5133,8 +5476,8 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                     command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
                     FilterStr = String.Format(@" and F.IsDeleted =@ShowDeleted");
                 }
-                command.CommandText = string.Format(@"select F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,F.GroundTime,F.TotalTime,F.IsDeleted,
-F.Complement_Captain AS CCA,F.Complement_FO AS CFO, F.Complement_Flight_Attendant AS CFA, F.Complement_Cabin_Manager AS CCM, 
+                command.CommandText = string.Format(@"select F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,F.GroundTime,F.TotalTime,
+F.IsDeleted,F.RouteCateg,F.Complement_Captain AS CCA,F.Complement_FO AS CFO, F.Complement_Flight_Attendant AS CFA, F.Complement_Cabin_Manager AS CCM, 
 A.AirportID ,A.AirportCode,A.AirportDescr
 From FlightRoutes as F
 Inner Join Airports as A on A.AirportID = F.AirportId
@@ -5171,6 +5514,7 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                         data.Airport.Id = int.Parse(reader["AirportID"].ToString());
                         data.Airport.Code = reader["AirportCode"].ToString();
                         data.Airport.Descr = reader["AirportDescr"].ToString();
+                        data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
 
                         data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
 
@@ -5187,6 +5531,992 @@ Inner Join Airports as A on A.AirportID = F.AirportId
         }
         #endregion
 
+        #region MinMax
+        public int SaveMinMaxData(MinMaxData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Separate query from execution
+                    int Id = flatData.RuleId;
+                    var existingQuery = dbContext.MinMax.Where(c => c.RuleId == Id);
+                    var existing = existingQuery.SingleOrDefault();
+                    // Execute the query and get the result
+                    var CrewCategQuery = dbContext.CrewCateg.Where(c => c.CrewCatId == flatData.CrewCat.CrewCatId);
+                    var CrewCateg = CrewCategQuery.SingleOrDefault();
+
+                    if (existing != null)
+                    {
+
+                        // Update existing customer
+                        existing.Code = flatData.Code;
+                        existing.Descr = flatData.Descr;
+                        existing.CrewCatId = flatData.CrewCat.CrewCatId;
+                        existing.Position = flatData.Position.ToString();
+                        existing.RouteCateg = flatData.RouteCateg.ToString();
+
+                        existing.rhs = flatData.Rhs;
+                        existing.PenaltyPoints = flatData.PenaltyPoints;
+                        existing.IsAct = flatData.IsAct;
+                        existing.IsMin = flatData.IsMin;
+                        existing.IsDeleted = flatData.IsDeleted;
+
+                        dbContext.SaveChanges();
+                        return 1;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveMinMaxData", "Notes");
+                return -1;
+            }
+        }
+        public int AddMinMaxData(MinMaxData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Separate query from execution
+                    var existingItemQuery = dbContext.MinMax.Where(r => r.Code == flatData.Code);
+                    var existingItem = existingItemQuery.SingleOrDefault();
+                    // Execute the query and get the result
+
+
+                    if (existingItem == null)
+                    {
+                        var newItem = new MinMaxDataEntity();
+                        // Insert new item
+                        newItem.Code = flatData.Code;
+                        newItem.Descr = flatData.Descr;
+                        newItem.CrewCatId = dbContext.CrewCateg.FirstOrDefault().CrewCatId;
+
+                        newItem.Position = BasicEnums.EmployeeType.Captain.ToString();
+                        newItem.RouteCateg = BasicEnums.RouteCategory.RouteCat1.ToString();
+
+                        newItem.rhs = 0;
+                        newItem.PenaltyPoints = 0;
+                        newItem.IsAct = false;
+                        newItem.IsMin = false;
+                        newItem.IsDeleted = false;
+
+                        dbContext.MinMax.Add(newItem);
+
+                        dbContext.SaveChanges();
+                        return 0;
+                    }
+                    else
+                    {
+                        // Else Print messages
+                        return 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "AddAirportsData", "Notes");
+                return 2;
+
+            }
+        }
+        public MinMaxData GetMinMaxChooserData(int Id, string Code)
+        {
+            MinMaxData data = new MinMaxData();
+            string FilterStr = "";
+            try
+            {
+                using (var connection = GetConnection())
+                using (var command = new SqlCommand())
+                {
+                    connection.Open();
+                    command.Connection = connection;
+
+                    if (Id > 0)
+                    {
+                        command.Parameters.AddWithValue("@ID", Id);
+                        FilterStr = String.Format(@" and M.RuleId =@ID");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Code))
+                    {
+                        command.Parameters.AddWithValue("@Code", Code);
+                        FilterStr = String.Format(@" and M.Code =@Code");
+                    }
+
+                    command.CommandText = string.Format(@"SELECT M.RuleId,M.Code,M.Descr,M.Position,M.RouteCateg,M.rhs,M.PenaltyPoints,
+                                                             M.IsMin,M.IsAct,M.IsDeleted,C.CrewCatId,C.CrewCatCode,C.CrewCatDescr
+                                                             from MinMax as M
+                                                             Inner Join CrewCateg as C ON C.CrewCatId = M.CrewCatId
+                                                             Where 1=1 {0}", FilterStr);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            data.CrewCat = new CrewCategData();
+
+                            data.RuleId = int.Parse(reader["RuleId"].ToString());
+                            data.Code = reader["Code"].ToString();
+                            data.Descr = reader["Descr"].ToString();
+
+                            data.Position = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position"].ToString());
+                            data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
+                            data.Rhs = int.Parse(reader["rhs"].ToString());
+                            data.PenaltyPoints = int.Parse(reader["PenaltyPoints"].ToString());
+
+                            data.IsMin = bool.Parse(reader["IsMin"].ToString());
+                            data.IsAct = bool.Parse(reader["IsAct"].ToString());
+                            data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                            data.CrewCat.CrewCatId = int.Parse(reader["CrewCatId"].ToString());
+                            data.CrewCat.CrewCatCode = reader["CrewCatCode"].ToString();
+                            data.CrewCat.CrewCatDescr = reader["CrewCatDescr"].ToString();
+                        }
+                    }
+
+                    connection.Close();
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "GetMinMaxChooserData", "Notes");
+                return null;
+            }
+        }
+        public ObservableCollection<MinMaxData> GetMinMaxData(bool ShowDeleted)
+        {
+            ObservableCollection<MinMaxData> DataList = new ObservableCollection<MinMaxData>();
+
+            string FilterStr = "";
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (ShowDeleted == false)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
+                    FilterStr = String.Format(@" and M.IsDeleted =@ShowDeleted");
+                }
+                command.CommandText = string.Format(@"select M.RuleId,M.Code,M.Descr,M.Position,M.RouteCateg,M.rhs,M.PenaltyPoints,
+                                                             M.IsMin,M.IsAct,M.IsDeleted,C.CrewCatId,C.CrewCatCode,C.CrewCatDescr
+                                                             from MinMax as M
+                                                             Inner Join CrewCateg as C ON C.CrewCatId = M.CrewCatId
+                                                             Where 1=1 {0}", FilterStr);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        MinMaxData data = new MinMaxData();
+                        data.CrewCat = new CrewCategData();
+
+
+                        data.RuleId = int.Parse(reader["RuleId"].ToString());
+                        data.Code = reader["Code"].ToString();
+                        data.Descr = reader["Descr"].ToString();
+
+                        data.Position = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position"].ToString());
+                        data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
+                        data.Rhs = int.Parse(reader["rhs"].ToString());
+                        data.PenaltyPoints = int.Parse(reader["PenaltyPoints"].ToString());
+
+                        data.IsMin = bool.Parse(reader["IsMin"].ToString());
+                        data.IsAct = bool.Parse(reader["IsAct"].ToString());
+                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+
+                        data.CrewCat.CrewCatId = int.Parse(reader["CrewCatId"].ToString());
+                        data.CrewCat.CrewCatCode = reader["CrewCatCode"].ToString();
+                        data.CrewCat.CrewCatDescr = reader["CrewCatDescr"].ToString();
+    
+                        DataList.Add(data);
+                    }
+                }
+
+                connection.Close();
+            }
+
+            return DataList;
+        }
+
+        //public ObservableCollection<MinMaxData> GetMinMaxFilterData(bool showDeleted, MinMaxFilterData filter)
+        //{
+        //    var dataList = new ObservableCollection<AirportData>();
+        //    var filterStr = new StringBuilder();
+
+        //    using (var connection = GetConnection())
+        //    using (var command = new SqlCommand())
+        //    {
+        //        connection.Open();
+        //        command.Connection = connection;
+
+        //        if (!string.IsNullOrWhiteSpace(filter?.City?.CityCode))
+        //        {
+        //            command.Parameters.AddWithValue("@CityCode", filter.City.CityCode);
+        //            filterStr.Append(" AND City.CityCode = @CityCode");
+        //        }
+
+        //        if (!string.IsNullOrWhiteSpace(filter?.City?.CountryCode))
+        //        {
+        //            command.Parameters.AddWithValue("@CountryCode", filter.City.CountryCode);
+        //            filterStr.Append(" AND Country.CountryCode = @CountryCode");
+        //        }
+
+        //        if (!showDeleted)
+        //        {
+        //            command.Parameters.AddWithValue("@ShowDeleted", false);
+        //            filterStr.Append(" AND A.IsDeleted = @ShowDeleted");
+        //        }
+
+        //        command.CommandText = $@"
+        //    SELECT 
+        //        A.AirportID,
+        //        A.AirportCode,
+        //        A.AirportDescr,
+        //        A.IsDeleted,
+        //        City.CityId,
+        //        City.CityCode,
+        //        City.CityDescr,
+        //        Country.CountryCode,
+        //        Country.CountryDescr,
+        //        Prefecture.PrefCode,
+        //        Prefecture.PrefDescr
+        //    FROM Airports AS A
+        //    INNER JOIN City ON City.CityId = A.CityId
+        //    INNER JOIN Prefecture ON Prefecture.PrefId = City.PrefId 
+        //    INNER JOIN Country ON Prefecture.CountryId = Country.CountryId
+        //    WHERE 1=1 {filterStr}";
+
+        //        using (var reader = command.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                var data = new AirportData
+        //                {
+        //                    City = new CityData
+        //                    {
+        //                        CityId = Convert.ToInt32(reader["CityId"]),
+        //                        CityCode = reader["CityCode"].ToString(),
+        //                        CityDescr = reader["CityDescr"].ToString(),
+        //                        PrefCode = reader["PrefCode"].ToString(),
+        //                        PrefDescr = reader["PrefDescr"].ToString(),
+        //                        CountryCode = reader["CountryCode"].ToString(),
+        //                        CountryDescr = reader["CountryDescr"].ToString()
+        //                    },
+        //                    Id = Convert.ToInt32(reader["AirportID"]),
+        //                    Code = reader["AirportCode"].ToString(),
+        //                    Descr = reader["AirportDescr"].ToString(),
+        //                    IsDeleted = Convert.ToBoolean(reader["IsDeleted"])
+        //                };
+
+        //                dataList.Add(data);
+        //            }
+        //        }
+        //    }
+
+        //    return dataList;
+        //}
+
+
+        #endregion
+
+        #region WithWithout
+        public int SaveWithWithoutData(WithWithoutData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Separate query from execution
+                    int Id = flatData.RuleId;
+                    var existingQuery = dbContext.WithWithout.Where(c => c.RuleId == Id);
+                    var existing = existingQuery.SingleOrDefault();
+                    // Execute the query and get the result
+                    //var CrewCategQuery = dbContext.CrewCateg.Where(c => c.CrewCatId == flatData.CrewCat.CrewCatId);
+                    //var CrewCateg1 = CrewCategQuery.SingleOrDefault();
+
+                    if (existing != null)
+                    {
+
+                        // Update existing customer
+                        existing.Code = flatData.Code;
+                        existing.Descr = flatData.Descr;
+
+                        existing.CrewCatId1 = flatData.CrewCat1.CrewCatId;
+                        existing.CrewCatId2 = flatData.CrewCat2.CrewCatId;
+                        existing.Position1 = flatData.Position1.ToString();
+                        existing.Position2 = flatData.Position2.ToString();
+                        existing.RouteCateg = flatData.RouteCateg.ToString();
+
+                        existing.PenaltyPoints = flatData.PenaltyPoints;
+                        existing.IsAct = flatData.IsAct;
+                        existing.IsWith = flatData.IsWith;
+
+                        existing.IsDeleted = flatData.IsDeleted;
+
+                        dbContext.SaveChanges();
+                        return 1;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveMinMaxData", "Notes");
+                return -1;
+            }
+        }
+
+        public int AddWithWithoutData(WithWithoutData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Separate query from execution
+                    var existingItemQuery = dbContext.WithWithout.Where(r => r.Code == flatData.Code);
+                    var existingItem = existingItemQuery.SingleOrDefault();
+                    // Execute the query and get the result
+
+                    if (existingItem == null)
+                    {
+                        var newItem = new WithWithoutDataEntity();
+                        // Insert new item
+                        newItem.Code = flatData.Code;
+                        newItem.Descr = flatData.Descr;
+                        newItem.CrewCatId1 = dbContext.CrewCateg.FirstOrDefault().CrewCatId;
+                        newItem.CrewCatId2 = dbContext.CrewCateg.FirstOrDefault().CrewCatId;
+
+                        newItem.Position1 = BasicEnums.EmployeeType.Captain.ToString();
+                        newItem.Position2 = BasicEnums.EmployeeType.Captain.ToString();
+
+                        newItem.RouteCateg = BasicEnums.RouteCategory.RouteCat1.ToString();
+
+                        newItem.PenaltyPoints = 0;
+                        newItem.IsAct = false;
+                        newItem.IsWith = false;
+                        newItem.IsDeleted = false;
+
+                        dbContext.WithWithout.Add(newItem);
+
+                        dbContext.SaveChanges();
+                        return 0;
+                    }
+                    else
+                    {
+                        // Else Print messages
+                        return 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "AddWithWithoutData", "Notes");
+                return 2;
+
+            }
+        }
+        public WithWithoutData GetWithWithoutChooserData(int Id, string Code)
+        {
+            WithWithoutData data = new WithWithoutData();
+            string FilterStr = "";
+            try
+            {
+                using (var connection = GetConnection())
+                using (var command = new SqlCommand())
+                {
+                    connection.Open();
+                    command.Connection = connection;
+
+                    if (Id > 0)
+                    {
+                        command.Parameters.AddWithValue("@ID", Id);
+                        FilterStr = String.Format(@" and W.RuleId =@ID");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Code))
+                    {
+                        command.Parameters.AddWithValue("@Code", Code);
+                        FilterStr = String.Format(@" and W.Code =@Code");
+                    }
+
+                    command.CommandText = string.Format(@"select W.RuleId,W.Code,W.Descr,W.Position1,W.Position2,W.RouteCateg,W.PenaltyPoints,W.IsWith,W.IsAct,W.IsDeleted,
+                                                        C1.CrewCatId as C1CrewCatID,C1.CrewCatCode as C1CrewCatCode,C1.CrewCatDescr as C1CrewCatDescr,
+                                                        C2.CrewCatId as C2CrewCatID,C2.CrewCatCode as C2CrewCatCode,C2.CrewCatDescr as C2CrewCatDescr
+                                                        from WithWithout as W
+                                                        Inner Join CrewCateg as C1 ON C1.CrewCatId = W.CrewCatId1
+                                                        Inner Join CrewCateg as C2 ON C2.CrewCatId = W.CrewCatId2
+                                                        Where 1=1 {0}", FilterStr);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            data.CrewCat1 = new CrewCategData();
+                            data.CrewCat2 = new CrewCategData();
+
+                            data.RuleId = int.Parse(reader["RuleId"].ToString());
+                            data.Code = reader["Code"].ToString();
+                            data.Descr = reader["Descr"].ToString();
+
+                            data.Position1 = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position1"].ToString());
+                            data.Position2 = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position2"].ToString());
+                            data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
+
+                            data.PenaltyPoints = int.Parse(reader["PenaltyPoints"].ToString());
+
+                            data.IsWith = bool.Parse(reader["IsWith"].ToString());
+                            data.IsAct = bool.Parse(reader["IsAct"].ToString());
+                            data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                            data.CrewCat1.CrewCatId = int.Parse(reader["C1CrewCatID"].ToString());
+                            data.CrewCat1.CrewCatCode = reader["C1CrewCatCode"].ToString();
+                            data.CrewCat1.CrewCatDescr = reader["C1CrewCatDescr"].ToString();
+
+                            data.CrewCat2.CrewCatId = int.Parse(reader["C2CrewCatID"].ToString());
+                            data.CrewCat2.CrewCatCode = reader["C2CrewCatCode"].ToString();
+                            data.CrewCat2.CrewCatDescr = reader["C2CrewCatDescr"].ToString();
+                        }
+                    }
+
+                    connection.Close();
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "GetWithWithoutChooserData", "Notes");
+                return null;
+            }
+        }
+        public ObservableCollection<WithWithoutData> GetWithWithoutData(bool ShowDeleted)
+        {
+            ObservableCollection<WithWithoutData> DataList = new ObservableCollection<WithWithoutData>();
+
+            string FilterStr = "";
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (ShowDeleted == false)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
+                    FilterStr = String.Format(@" and W.IsDeleted =@ShowDeleted");
+                }
+                command.CommandText = string.Format(@"select W.RuleId,W.Code,W.Descr,W.Position1,W.Position2,W.RouteCateg,W.PenaltyPoints,W.IsWith,W.IsAct,W.IsDeleted,
+                                                        C1.CrewCatId as C1CrewCatID,C1.CrewCatCode as C1CrewCatCode,C1.CrewCatDescr as C1CrewCatDescr,
+                                                        C2.CrewCatId as C2CrewCatID,C2.CrewCatCode as C2CrewCatCode,C2.CrewCatDescr as C2CrewCatDescr
+                                                        from WithWithout as W
+                                                        Inner Join CrewCateg as C1 ON C1.CrewCatId = W.CrewCatId1
+                                                        Inner Join CrewCateg as C2 ON C2.CrewCatId = W.CrewCatId2
+                                                        Where 1=1 {0}", FilterStr);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        WithWithoutData data = new WithWithoutData();
+                        data.CrewCat1 = new CrewCategData();
+                        data.CrewCat2 = new CrewCategData();
+
+                        data.RuleId = int.Parse(reader["RuleId"].ToString());
+                        data.Code = reader["Code"].ToString();
+                        data.Descr = reader["Descr"].ToString();
+
+                        data.Position1 = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position1"].ToString());
+                        data.Position2 = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["Position2"].ToString());
+                        data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
+
+                        data.PenaltyPoints = int.Parse(reader["PenaltyPoints"].ToString());
+
+                        data.IsWith = bool.Parse(reader["IsWith"].ToString());
+                        data.IsAct = bool.Parse(reader["IsAct"].ToString());
+                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                        data.CrewCat1.CrewCatId = int.Parse(reader["C1CrewCatID"].ToString());
+                        data.CrewCat1.CrewCatCode = reader["C1CrewCatCode"].ToString();
+                        data.CrewCat1.CrewCatDescr = reader["C1CrewCatDescr"].ToString();
+
+                        data.CrewCat2.CrewCatId = int.Parse(reader["C2CrewCatID"].ToString());
+                        data.CrewCat2.CrewCatCode = reader["C2CrewCatCode"].ToString();
+                        data.CrewCat2.CrewCatDescr = reader["C2CrewCatDescr"].ToString();
+
+
+
+                        DataList.Add(data);
+                    }
+                }
+
+                connection.Close();
+            }
+
+            return DataList;
+        }
+
+        //public ObservableCollection<MinMaxData> GetMinMaxFilterData(bool showDeleted, MinMaxFilterData filter)
+        //{
+        //    var dataList = new ObservableCollection<AirportData>();
+        //    var filterStr = new StringBuilder();
+
+        //    using (var connection = GetConnection())
+        //    using (var command = new SqlCommand())
+        //    {
+        //        connection.Open();
+        //        command.Connection = connection;
+
+        //        if (!string.IsNullOrWhiteSpace(filter?.City?.CityCode))
+        //        {
+        //            command.Parameters.AddWithValue("@CityCode", filter.City.CityCode);
+        //            filterStr.Append(" AND City.CityCode = @CityCode");
+        //        }
+
+        //        if (!string.IsNullOrWhiteSpace(filter?.City?.CountryCode))
+        //        {
+        //            command.Parameters.AddWithValue("@CountryCode", filter.City.CountryCode);
+        //            filterStr.Append(" AND Country.CountryCode = @CountryCode");
+        //        }
+
+        //        if (!showDeleted)
+        //        {
+        //            command.Parameters.AddWithValue("@ShowDeleted", false);
+        //            filterStr.Append(" AND A.IsDeleted = @ShowDeleted");
+        //        }
+
+        //        command.CommandText = $@"
+        //    SELECT 
+        //        A.AirportID,
+        //        A.AirportCode,
+        //        A.AirportDescr,
+        //        A.IsDeleted,
+        //        City.CityId,
+        //        City.CityCode,
+        //        City.CityDescr,
+        //        Country.CountryCode,
+        //        Country.CountryDescr,
+        //        Prefecture.PrefCode,
+        //        Prefecture.PrefDescr
+        //    FROM Airports AS A
+        //    INNER JOIN City ON City.CityId = A.CityId
+        //    INNER JOIN Prefecture ON Prefecture.PrefId = City.PrefId 
+        //    INNER JOIN Country ON Prefecture.CountryId = Country.CountryId
+        //    WHERE 1=1 {filterStr}";
+
+        //        using (var reader = command.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                var data = new AirportData
+        //                {
+        //                    City = new CityData
+        //                    {
+        //                        CityId = Convert.ToInt32(reader["CityId"]),
+        //                        CityCode = reader["CityCode"].ToString(),
+        //                        CityDescr = reader["CityDescr"].ToString(),
+        //                        PrefCode = reader["PrefCode"].ToString(),
+        //                        PrefDescr = reader["PrefDescr"].ToString(),
+        //                        CountryCode = reader["CountryCode"].ToString(),
+        //                        CountryDescr = reader["CountryDescr"].ToString()
+        //                    },
+        //                    Id = Convert.ToInt32(reader["AirportID"]),
+        //                    Code = reader["AirportCode"].ToString(),
+        //                    Descr = reader["AirportDescr"].ToString(),
+        //                    IsDeleted = Convert.ToBoolean(reader["IsDeleted"])
+        //                };
+
+        //                dataList.Add(data);
+        //            }
+        //        }
+        //    }
+
+        //    return dataList;
+        //}
+
+
+        #endregion
+
+        #region Optimizer Settings
+        public int SaveOptimizerSettingsData(OptimizerSettingsData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    // Separate query from execution
+                    int Id = flatData.Id;
+                    var existingQuery = dbContext.OptimizerSettings.Where(c => c.Id == Id);
+                    var existing = existingQuery.SingleOrDefault();
+                    // Execute the query and get the result
+
+
+                    if (existing != null)
+                    {
+
+                        // Update existing customer
+                        existing.Code = flatData.Code;
+                        existing.Descr = flatData.Descr;
+                        existing.IsDeleted = flatData.IsDeleted;
+
+
+                        existing.DaysOff = flatData.LegalityRulesParams.DaysOff;
+                        existing.MinHoursBetween = flatData.LegalityRulesParams.MinHoursBetween;
+                        existing.LatestArrivalTime = flatData.LegalityRulesParams.LatestArrivalTime;
+                        existing.EarliestDepartureTime = flatData.LegalityRulesParams.EarliestDepartureTime;
+                        existing.XHoursBreak = flatData.LegalityRulesParams.XHoursBreak;
+                        existing.YFlightHours = flatData.LegalityRulesParams.YFlightHours;
+                        existing.MaximumFlightHours = flatData.LegalityRulesParams.MaximumFlightHours;
+
+                        existing.AbsBacktrack = flatData.BranchingParams.AbsBacktrack;
+                        existing.PerceBacktrack = flatData.BranchingParams.PerceBacktrack;
+                        existing.AbsMIP = flatData.BranchingParams.AbsMIP;
+                        existing.PerceMIP = flatData.BranchingParams.PerceMIP;
+                        existing.NumberOfBacktracksLimit = flatData.BranchingParams.NumberOfBacktracksLimit;
+                        existing.NumberOfTreeNodesLimit = flatData.BranchingParams.NumberOfTreeNodesLimit;
+                        existing.TreelistSortingIdsFixed = flatData.BranchingParams.TreelistSortingIdsFixed;
+
+                        existing.Buckets = flatData.ColgenParams.Buckets;
+                        existing.Fictbuckets = flatData.ColgenParams.Fictbuckets;
+                        existing.ReducedCostCut = flatData.ColgenParams.ReducedCostCut;
+                        existing.NIDRAI = flatData.ColgenParams.NIDRAI;
+
+                        existing.Eps = flatData.NumericParams.Eps;
+                        existing.MaxDouble = flatData.NumericParams.MaxDouble;
+
+                        existing.UnderCoverPenalty = flatData.PenaltiesParams.UnderCoverPenalty;
+                        existing.HourPenalty = flatData.PenaltiesParams.HourPenalty;
+                        existing.MinMaxPenalty = flatData.PenaltiesParams.MinMaxPenalty;
+                        existing.WithWithoutPenalty = flatData.PenaltiesParams.WithWithoutPenalty;
+                        existing.GenderPenalty = flatData.PenaltiesParams.GenderPenalty;
+
+                        existing.MinMaxAct = flatData.SpecialConsParams.MinMaxAct;
+                        existing.WithAct = flatData.SpecialConsParams.WithAct;
+                        existing.WithoutAct = flatData.SpecialConsParams.WithoutAct;
+                        existing.GenderAct = flatData.SpecialConsParams.GenderAct;
+
+                        existing.MinMaxSoft = flatData.SpecialConsParams.MinMaxSoft;
+                        existing.WithSoft = flatData.SpecialConsParams.WithSoft;
+                        existing.WithoutSoft = flatData.SpecialConsParams.WithoutSoft;
+                        existing.GenderSoft = flatData.SpecialConsParams.GenderSoft;
+
+                        existing.WithoutPriority = flatData.SpecialConsParams.WithoutPriority;
+                        existing.GenderPriority = flatData.SpecialConsParams.GenderPriority;
+
+
+                        dbContext.SaveChanges();
+                        return 1;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "SaveOptimizerSettingsData", "Notes");
+                return -1;
+            }
+        }
+        public int AddOptimizerSettingsData(OptimizerSettingsData flatData)
+        {
+            try
+            {
+                using (var dbContext = new ErpDbContext(options))
+                {
+                    var existingItemQuery = dbContext.OptimizerSettings.Where(r => r.Code == flatData.Code);
+                    var existingItem = existingItemQuery.SingleOrDefault();
+
+                    if (existingItem == null)
+                    {
+                        var newItem = new OptimizerSettingsDataEntity();
+
+                        // Insert new item
+                        newItem.Code = flatData.Code;
+                        newItem.Descr = flatData.Descr;
+                        newItem.IsDeleted = false;
+
+                        newItem.DaysOff = 10;
+                        newItem.MinHoursBetween = 34;
+                        newItem.LatestArrivalTime = 23;
+                        newItem.EarliestDepartureTime = 6;
+                        newItem.XHoursBreak = 34;
+                        newItem.YFlightHours = 68;
+                        newItem.MaximumFlightHours = 100;
+
+                        newItem.AbsBacktrack = 900000;
+                        newItem.PerceBacktrack = 0.2;
+                        newItem.AbsMIP = 5000;
+                        newItem.PerceMIP = 0.1;
+                        newItem.NumberOfBacktracksLimit = 100;
+                        newItem.NumberOfTreeNodesLimit = 100;
+                        newItem.TreelistSortingIdsFixed = 10;
+
+                        newItem.Buckets = 3;
+                        newItem.Fictbuckets = 20;
+                        newItem.ReducedCostCut = -1;
+                        newItem.NIDRAI = 0.3;
+
+                        newItem.Eps = 0.001;
+                        newItem.MaxDouble = 1000000000000;
+
+                        newItem.UnderCoverPenalty = 1000000;
+                        newItem.HourPenalty = 1000;
+                        newItem.MinMaxPenalty = 5000;
+                        newItem.WithWithoutPenalty = 5000;
+                        newItem.GenderPenalty = 5000;
+
+                        newItem.MinMaxAct = false;
+                        newItem.WithAct = false;
+                        newItem.WithoutAct = false;
+                        newItem.GenderAct = false;
+
+                        newItem.MinMaxSoft = false;
+                        newItem.WithSoft = false;
+                        newItem.WithoutSoft = false;
+                        newItem.GenderSoft = false;
+
+                        newItem.WithoutPriority = false;
+                        newItem.GenderPriority = false;
+                        dbContext.OptimizerSettings.Add(newItem);
+
+                        dbContext.SaveChanges();
+                        return 0;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "AddOptimizerSettingsData", "Notes");
+                return 2;
+            }
+        }
+        public OptimizerSettingsData GetOptimizerSettingsChooserData(int Id, string Code)
+        {
+            OptimizerSettingsData data = new OptimizerSettingsData();
+            string FilterStr = "";
+            try
+            {
+                using (var connection = GetConnection())
+                using (var command = new SqlCommand())
+                {
+                    connection.Open();
+                    command.Connection = connection;
+
+                    if (Id > 0)
+                    {
+                        command.Parameters.AddWithValue("@Id", Id);
+                        FilterStr = String.Format(@" and Id =@Id");
+
+                    }
+
+                    else if (!string.IsNullOrWhiteSpace(Code))
+                    {
+                        command.Parameters.AddWithValue("@Code", Code);
+                        FilterStr = String.Format(@" and Code =@Code");
+
+                    }
+                    command.CommandText = string.Format(@"SELECT Id, Code, Descr,
+       AbsBacktrack, PerceBacktrack, AbsMIP, PerceMIP, NumberOfBacktracksLimit, NumberOfTreeNodesLimit, TreelistSortingIdsFixed,
+       Buckets, Fictbuckets, ReducedCostCut, NIDRAI,
+       Eps, MaxDouble,DaysOff,
+       UnderCoverPenalty, HourPenalty, MinMaxPenalty, WithWithoutPenalty, GenderPenalty,
+       MinMaxAct, WithAct, WithoutAct, GenderAct,
+       MinMaxSoft, WithSoft, WithoutSoft, GenderSoft,
+       WithoutPriority, GenderPriority,
+       DaysOff, MinHoursBetween, LatestArrivalTime, EarliestDepartureTime, XHoursBreak, YFlightHours, MaximumFlightHours,
+       IsDeleted
+                                    FROM OptimizerSettings
+                                    Where 1=1 {0}", FilterStr);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            data.BranchingParams = new BranchingParameters();
+                            data.ColgenParams = new ColgenPerformanceParams();
+                            data.NumericParams = new NumericParameters();
+                            data.PenaltiesParams = new Penalties();
+                            data.SpecialConsParams = new SpecialConstraintsParameters();
+                            data.LegalityRulesParams = new RosterLegalityRulesParameters();
+
+                            data.Id = int.Parse(reader["Id"].ToString());
+                            data.Code = reader["Code"].ToString();
+                            data.Descr = reader["Descr"].ToString();
+                            data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                            data.LegalityRulesParams.DaysOff = int.Parse(reader["DaysOff"].ToString());
+                            data.LegalityRulesParams.MinHoursBetween = int.Parse(reader["MinHoursBetween"].ToString());
+                            data.LegalityRulesParams.LatestArrivalTime = int.Parse(reader["LatestArrivalTime"].ToString());
+                            data.LegalityRulesParams.EarliestDepartureTime = int.Parse(reader["EarliestDepartureTime"].ToString());
+                            data.LegalityRulesParams.XHoursBreak = int.Parse(reader["XHoursBreak"].ToString());
+                            data.LegalityRulesParams.YFlightHours = int.Parse(reader["YFlightHours"].ToString());
+                            data.LegalityRulesParams.MaximumFlightHours = int.Parse(reader["MaximumFlightHours"].ToString());
+
+
+                            data.BranchingParams.AbsBacktrack = int.Parse(reader["AbsBacktrack"].ToString());
+                            data.BranchingParams.PerceBacktrack = double.Parse(reader["PerceBacktrack"].ToString());
+                            data.BranchingParams.AbsMIP = int.Parse(reader["AbsMIP"].ToString());
+                            data.BranchingParams.PerceMIP = double.Parse(reader["PerceMIP"].ToString());
+                            data.BranchingParams.NumberOfBacktracksLimit = int.Parse(reader["NumberOfBacktracksLimit"].ToString());
+                            data.BranchingParams.NumberOfTreeNodesLimit = int.Parse(reader["NumberOfTreeNodesLimit"].ToString());
+                            data.BranchingParams.TreelistSortingIdsFixed = int.Parse(reader["TreelistSortingIdsFixed"].ToString());
+
+                            data.ColgenParams.Buckets = int.Parse(reader["Buckets"].ToString());
+                            data.ColgenParams.Fictbuckets = int.Parse(reader["Fictbuckets"].ToString());
+                            data.ColgenParams.ReducedCostCut = int.Parse(reader["ReducedCostCut"].ToString());
+                            data.ColgenParams.NIDRAI = double.Parse(reader["NIDRAI"].ToString());
+
+                            data.NumericParams.MaxDouble = double.Parse(reader["MaxDouble"].ToString());
+                            data.NumericParams.Eps = double.Parse(reader["Eps"].ToString());
+
+                            data.PenaltiesParams.UnderCoverPenalty = int.Parse(reader["UnderCoverPenalty"].ToString());
+                            data.PenaltiesParams.HourPenalty = int.Parse(reader["HourPenalty"].ToString());
+                            data.PenaltiesParams.MinMaxPenalty = int.Parse(reader["MinMaxPenalty"].ToString());
+                            data.PenaltiesParams.WithWithoutPenalty = int.Parse(reader["WithWithoutPenalty"].ToString());
+                            data.PenaltiesParams.GenderPenalty = int.Parse(reader["GenderPenalty"].ToString());
+
+                            data.SpecialConsParams.MinMaxAct = bool.Parse(reader["MinMaxAct"].ToString());
+                            data.SpecialConsParams.WithAct = bool.Parse(reader["WithAct"].ToString());
+                            data.SpecialConsParams.WithoutAct = bool.Parse(reader["WithoutAct"].ToString());
+                            data.SpecialConsParams.GenderAct = bool.Parse(reader["GenderAct"].ToString());
+                            data.SpecialConsParams.MinMaxSoft = bool.Parse(reader["MinMaxSoft"].ToString());
+                            data.SpecialConsParams.WithSoft = bool.Parse(reader["WithSoft"].ToString());
+                            data.SpecialConsParams.WithoutSoft = bool.Parse(reader["WithoutSoft"].ToString());
+                            data.SpecialConsParams.GenderSoft = bool.Parse(reader["GenderSoft"].ToString());
+                            data.SpecialConsParams.WithoutPriority = bool.Parse(reader["WithoutPriority"].ToString());
+                            data.SpecialConsParams.GenderPriority = bool.Parse(reader["GenderPriority"].ToString());
+                        }
+                    }
+
+                    connection.Close();
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "GetOptimizerSettingsChooserData", "Notes");
+                return null;
+            }
+        }
+        public ObservableCollection<OptimizerSettingsData> GetOptimizerSettingsData(bool ShowDeleted)
+        {
+            ObservableCollection<OptimizerSettingsData> DataList = new ObservableCollection<OptimizerSettingsData>();
+
+            string FilterStr = "";
+
+            using (var connection = GetConnection())
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                if (ShowDeleted == false)
+                {
+                    command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
+                    FilterStr = String.Format(@" and IsDeleted =@ShowDeleted");
+                }
+                command.CommandText = string.Format(@"SELECT Id, Code, Descr,
+       AbsBacktrack, PerceBacktrack, AbsMIP, PerceMIP, NumberOfBacktracksLimit, NumberOfTreeNodesLimit, TreelistSortingIdsFixed,
+       Buckets, Fictbuckets, ReducedCostCut, NIDRAI,
+       Eps, MaxDouble,
+       UnderCoverPenalty, HourPenalty, MinMaxPenalty, WithWithoutPenalty, GenderPenalty,
+       MinMaxAct, WithAct, WithoutAct, GenderAct,
+       MinMaxSoft, WithSoft, WithoutSoft, GenderSoft,
+       WithoutPriority, GenderPriority,
+       DaysOff, MinHoursBetween, LatestArrivalTime, EarliestDepartureTime, XHoursBreak, YFlightHours, MaximumFlightHours,
+       IsDeleted
+                                    FROM OptimizerSettings
+                                    Where 1=1 {0}", FilterStr);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        OptimizerSettingsData data = new OptimizerSettingsData();
+
+                        data.LegalityRulesParams = new RosterLegalityRulesParameters();
+                        data.BranchingParams = new BranchingParameters();
+                        data.ColgenParams = new ColgenPerformanceParams();
+                        data.NumericParams = new NumericParameters();
+                        data.PenaltiesParams = new Penalties();
+                        data.SpecialConsParams = new SpecialConstraintsParameters();
+
+                        data.Id = int.Parse(reader["Id"].ToString());
+                        data.Code = reader["Code"].ToString();
+                        data.Descr = reader["Descr"].ToString();
+                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+
+                        data.LegalityRulesParams.DaysOff = int.Parse(reader["DaysOff"].ToString());
+                        data.LegalityRulesParams.MinHoursBetween = int.Parse(reader["MinHoursBetween"].ToString());
+                        data.LegalityRulesParams.LatestArrivalTime = int.Parse(reader["LatestArrivalTime"].ToString());
+                        data.LegalityRulesParams.EarliestDepartureTime = int.Parse(reader["EarliestDepartureTime"].ToString());
+                        data.LegalityRulesParams.XHoursBreak = int.Parse(reader["XHoursBreak"].ToString());
+                        data.LegalityRulesParams.YFlightHours = int.Parse(reader["YFlightHours"].ToString());
+                        data.LegalityRulesParams.MaximumFlightHours = int.Parse(reader["MaximumFlightHours"].ToString());
+
+
+                        data.BranchingParams.AbsBacktrack = int.Parse(reader["AbsBacktrack"].ToString());
+                        data.BranchingParams.PerceBacktrack = double.Parse(reader["PerceBacktrack"].ToString());
+                        data.BranchingParams.AbsMIP = int.Parse(reader["AbsMIP"].ToString());
+                        data.BranchingParams.PerceMIP = double.Parse(reader["PerceMIP"].ToString());
+                        data.BranchingParams.NumberOfBacktracksLimit = int.Parse(reader["NumberOfBacktracksLimit"].ToString());
+                        data.BranchingParams.NumberOfTreeNodesLimit = int.Parse(reader["NumberOfTreeNodesLimit"].ToString());
+                        data.BranchingParams.TreelistSortingIdsFixed = int.Parse(reader["TreelistSortingIdsFixed"].ToString());
+
+                        data.ColgenParams.Buckets = int.Parse(reader["Buckets"].ToString());
+                        data.ColgenParams.Fictbuckets = int.Parse(reader["Fictbuckets"].ToString());
+                        data.ColgenParams.ReducedCostCut = int.Parse(reader["ReducedCostCut"].ToString());
+                        data.ColgenParams.NIDRAI = double.Parse(reader["NIDRAI"].ToString());
+
+                        data.NumericParams.MaxDouble = double.Parse(reader["MaxDouble"].ToString());
+                        data.NumericParams.Eps = double.Parse(reader["Eps"].ToString());
+
+                        data.PenaltiesParams.UnderCoverPenalty = int.Parse(reader["UnderCoverPenalty"].ToString());
+                        data.PenaltiesParams.HourPenalty = int.Parse(reader["HourPenalty"].ToString());
+                        data.PenaltiesParams.MinMaxPenalty = int.Parse(reader["MinMaxPenalty"].ToString());
+                        data.PenaltiesParams.WithWithoutPenalty = int.Parse(reader["WithWithoutPenalty"].ToString());
+                        data.PenaltiesParams.GenderPenalty = int.Parse(reader["GenderPenalty"].ToString());
+
+                        data.SpecialConsParams.MinMaxAct = bool.Parse(reader["MinMaxAct"].ToString());
+                        data.SpecialConsParams.WithAct = bool.Parse(reader["WithAct"].ToString());
+                        data.SpecialConsParams.WithoutAct = bool.Parse(reader["WithoutAct"].ToString());
+                        data.SpecialConsParams.GenderAct = bool.Parse(reader["GenderAct"].ToString());
+                        data.SpecialConsParams.MinMaxSoft = bool.Parse(reader["MinMaxSoft"].ToString());
+                        data.SpecialConsParams.WithSoft = bool.Parse(reader["WithSoft"].ToString());
+                        data.SpecialConsParams.WithoutSoft = bool.Parse(reader["WithoutSoft"].ToString());
+                        data.SpecialConsParams.GenderSoft = bool.Parse(reader["GenderSoft"].ToString());
+                        data.SpecialConsParams.WithoutPriority = bool.Parse(reader["WithoutPriority"].ToString());
+                        data.SpecialConsParams.GenderPriority = bool.Parse(reader["GenderPriority"].ToString());
+
+
+                        DataList.Add(data);
+                    }
+                }
+
+                connection.Close();
+            }
+
+            return DataList;
+        }
+
+        #endregion
+
         #region Crew Scheduling
 
         #region CRUD Commands
@@ -5201,7 +6531,8 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                     int Id = flatData.Id;
                     var existingQuery = dbContext.CSInput.Where(c => c.CSID == Id);
                     var existing = existingQuery.SingleOrDefault();
-
+                    var OptSettingsQuery = dbContext.OptimizerSettings.Where(c => c.Id == flatData.OptimizerSettingsData.Id);
+                    var OptSettings = OptSettingsQuery.SingleOrDefault();
                     // Execute the query and get the result
 
 
@@ -5218,6 +6549,7 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                         existing.RoutesPenalty = flatData.RoutesPenalty;
                         existing.BoundsPenalty = flatData.BoundsPenalty;
                         existing.IsDeleted = flatData.IsDeleted;
+                        existing.OptSettingsId = OptSettings.Id;
 
                         dbContext.SaveChanges();
                         return 1;
@@ -5261,6 +6593,9 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                         newCS.DateTo = flatData.DateTo;
                         newCS.RoutesPenalty = flatData.RoutesPenalty;
                         newCS.BoundsPenalty = flatData.BoundsPenalty;
+                        newCS.OptSettingsId = dbContext.OptimizerSettings.FirstOrDefault().Id;
+
+
                         newCS.IsDeleted = flatData.IsDeleted;
 
 
@@ -5300,14 +6635,26 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                 if (ShowDeleted == false)
                 {
                     command.Parameters.AddWithValue("@ShowDeleted", ShowDeleted);
-                    FilterStr = String.Format(@"and IsDeleted = @ShowDeleted");
+                    FilterStr = String.Format(@"and C.IsDeleted = @ShowDeleted");
 
                 }
 
-                command.CommandText = string.Format(@"SELECT CSID,CSCODE,CSDESCR,EMPLOYEETYPE,DateFrom,DateTo,RoutesPenalty,
-                                                     BoundsPenalty,IsDeleted 
-                                                     FROM CSInput
-                                                     Where 1=1 {0}", FilterStr);
+                command.CommandText = string.Format(@"SELECT C.CSID,C.CSCODE,C.CSDESCR,C.EMPLOYEETYPE,C.DateFrom,C.DateTo,C.RoutesPenalty,
+C.BoundsPenalty,C.IsDeleted as CIsDeleted,
+O.Id,O.Code,O.Descr,
+O.AbsBacktrack, O.PerceBacktrack, O.AbsMIP, O.PerceMIP, O.NumberOfBacktracksLimit, 
+O.NumberOfTreeNodesLimit, O.TreelistSortingIdsFixed,
+O.Buckets, O.Fictbuckets, O.ReducedCostCut, O.NIDRAI,
+O.Eps, O.MaxDouble,
+O.UnderCoverPenalty, O.HourPenalty, O.MinMaxPenalty, O.WithWithoutPenalty, O.GenderPenalty,
+O.MinMaxAct, O.WithAct, O.WithoutAct, O.GenderAct,
+O.MinMaxSoft, O.WithSoft, O.WithoutSoft, O.GenderSoft,
+O.WithoutPriority, O.GenderPriority,
+O.DaysOff, O.MinHoursBetween, O.LatestArrivalTime, O.EarliestDepartureTime, O.XHoursBreak, O.YFlightHours, O.MaximumFlightHours,
+O.IsDeleted as ODeleted
+FROM CSInput as C
+Inner JOin OptimizerSettings as O on C.OptSettingsId = Id
+Where 1=1 and O.IsDeleted = 0 {0}", FilterStr);
 
 
                 using (var reader = command.ExecuteReader())
@@ -5326,13 +6673,72 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                         data.Position = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["EMPLOYEETYPE"].ToString());
                         data.CSType = BasicEnums.CSType.Set_Partition;
 
-                        data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+                        data.IsDeleted = bool.Parse(reader["CIsDeleted"].ToString());
 
                         data.DateFrom_Str = data.DateFrom.ToString("dd/MM/yyyy HH:mm");
                         data.DateTo_Str = data.DateTo.ToString("dd/MM/yyyy HH:mm");
 
+                        OptimizerSettingsData OptimizerSettingsdata = new OptimizerSettingsData();
+                        #region Optimizer Settings FillData
 
+                        OptimizerSettingsdata.Code = reader["Code"].ToString();
+                        OptimizerSettingsdata.Descr = reader["Descr"].ToString();
 
+                        OptimizerSettingsdata.LegalityRulesParams = new RosterLegalityRulesParameters();
+                        OptimizerSettingsdata.BranchingParams = new BranchingParameters();
+                        OptimizerSettingsdata.ColgenParams = new ColgenPerformanceParams();
+                        OptimizerSettingsdata.NumericParams = new NumericParameters();
+                        OptimizerSettingsdata.PenaltiesParams = new Penalties();
+                        OptimizerSettingsdata.SpecialConsParams = new SpecialConstraintsParameters();
+
+                        OptimizerSettingsdata.Id = int.Parse(reader["Id"].ToString());
+                        OptimizerSettingsdata.Code = reader["Code"].ToString();
+                        OptimizerSettingsdata.Descr = reader["Descr"].ToString();
+                        OptimizerSettingsdata.IsDeleted = bool.Parse(reader["ODeleted"].ToString());
+
+                        OptimizerSettingsdata.LegalityRulesParams.DaysOff = int.Parse(reader["DaysOff"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.MinHoursBetween = int.Parse(reader["MinHoursBetween"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.LatestArrivalTime = int.Parse(reader["LatestArrivalTime"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.EarliestDepartureTime = int.Parse(reader["EarliestDepartureTime"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.XHoursBreak = int.Parse(reader["XHoursBreak"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.YFlightHours = int.Parse(reader["YFlightHours"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.MaximumFlightHours = int.Parse(reader["MaximumFlightHours"].ToString());
+
+                        OptimizerSettingsdata.BranchingParams.AbsBacktrack = int.Parse(reader["AbsBacktrack"].ToString());
+                        OptimizerSettingsdata.BranchingParams.PerceBacktrack = double.Parse(reader["PerceBacktrack"].ToString());
+                        OptimizerSettingsdata.BranchingParams.AbsMIP = int.Parse(reader["AbsMIP"].ToString());
+                        OptimizerSettingsdata.BranchingParams.PerceMIP = double.Parse(reader["PerceMIP"].ToString());
+                        OptimizerSettingsdata.BranchingParams.NumberOfBacktracksLimit = int.Parse(reader["NumberOfBacktracksLimit"].ToString());
+                        OptimizerSettingsdata.BranchingParams.NumberOfTreeNodesLimit = int.Parse(reader["NumberOfTreeNodesLimit"].ToString());
+                        OptimizerSettingsdata.BranchingParams.TreelistSortingIdsFixed = int.Parse(reader["TreelistSortingIdsFixed"].ToString());
+
+                        OptimizerSettingsdata.ColgenParams.Buckets = int.Parse(reader["Buckets"].ToString());
+                        OptimizerSettingsdata.ColgenParams.Fictbuckets = int.Parse(reader["Fictbuckets"].ToString());
+                        OptimizerSettingsdata.ColgenParams.ReducedCostCut = int.Parse(reader["ReducedCostCut"].ToString());
+                        OptimizerSettingsdata.ColgenParams.NIDRAI = double.Parse(reader["NIDRAI"].ToString());
+
+                        OptimizerSettingsdata.NumericParams.MaxDouble = double.Parse(reader["MaxDouble"].ToString());
+                        OptimizerSettingsdata.NumericParams.Eps = double.Parse(reader["Eps"].ToString());
+
+                        OptimizerSettingsdata.PenaltiesParams.UnderCoverPenalty = int.Parse(reader["UnderCoverPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.HourPenalty = int.Parse(reader["HourPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.MinMaxPenalty = int.Parse(reader["MinMaxPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.WithWithoutPenalty = int.Parse(reader["WithWithoutPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.GenderPenalty = int.Parse(reader["GenderPenalty"].ToString());
+
+                        OptimizerSettingsdata.SpecialConsParams.MinMaxAct = bool.Parse(reader["MinMaxAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithAct = bool.Parse(reader["WithAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutAct = bool.Parse(reader["WithoutAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderAct = bool.Parse(reader["GenderAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.MinMaxSoft = bool.Parse(reader["MinMaxSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithSoft = bool.Parse(reader["WithSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutSoft = bool.Parse(reader["WithoutSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderSoft = bool.Parse(reader["GenderSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutPriority = bool.Parse(reader["WithoutPriority"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderPriority = bool.Parse(reader["GenderPriority"].ToString());
+
+                        #endregion
+                        data.OptimizerSettingsData = OptimizerSettingsdata;
 
                         DataList.Add(data);
                     }
@@ -5365,10 +6771,22 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                     FilterStr += " and CSCODE = @CSCODE";
                 }
 
-                command.CommandText = string.Format(@"SELECT CSID,CSCODE,CSDESCR,EMPLOYEETYPE,DateFrom,DateTo,RoutesPenalty,
-                                                     BoundsPenalty,IsDeleted 
-                                                     FROM CSInput
-                                                     Where 1=1 {0}", FilterStr);
+                command.CommandText = string.Format(@"SELECT C.CSID,C.CSCODE,C.CSDESCR,C.EMPLOYEETYPE,C.DateFrom,C.DateTo,C.RoutesPenalty,
+C.BoundsPenalty,C.IsDeleted as CIsDeleted,
+O.Id,O.Code,O.Descr,
+O.AbsBacktrack, O.PerceBacktrack, O.AbsMIP, O.PerceMIP, O.NumberOfBacktracksLimit, 
+O.NumberOfTreeNodesLimit, O.TreelistSortingIdsFixed,
+O.Buckets, O.Fictbuckets, O.ReducedCostCut, O.NIDRAI,
+O.Eps, O.MaxDouble,
+O.UnderCoverPenalty, O.HourPenalty, O.MinMaxPenalty, O.WithWithoutPenalty, O.GenderPenalty,
+O.MinMaxAct, O.WithAct, O.WithoutAct, O.GenderAct,
+O.MinMaxSoft, O.WithSoft, O.WithoutSoft, O.GenderSoft,
+O.WithoutPriority, O.GenderPriority,
+O.DaysOff, O.MinHoursBetween, O.LatestArrivalTime, O.EarliestDepartureTime, O.XHoursBreak, O.YFlightHours, O.MaximumFlightHours,
+O.IsDeleted as ODeleted
+FROM CSInput as C
+Inner JOin OptimizerSettings as O on C.OptSettingsId = Id
+Where 1=1 and O.IsDeleted = 0 {0}", FilterStr);
 
 
 
@@ -5391,7 +6809,67 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                         Data.Position = (BasicEnums.EmployeeType)Enum.Parse(typeof(BasicEnums.EmployeeType), reader["EMPLOYEETYPE"].ToString());
                         Data.CSType = BasicEnums.CSType.Set_Partition;
 
-                        Data.IsDeleted = bool.Parse(reader["IsDeleted"].ToString());
+                        OptimizerSettingsData OptimizerSettingsdata = new OptimizerSettingsData();
+                        #region Optimizer Settings FillData
+
+
+                        OptimizerSettingsdata.BranchingParams = new BranchingParameters();
+                        OptimizerSettingsdata.ColgenParams = new ColgenPerformanceParams();
+                        OptimizerSettingsdata.NumericParams = new NumericParameters();
+                        OptimizerSettingsdata.PenaltiesParams = new Penalties();
+                        OptimizerSettingsdata.SpecialConsParams = new SpecialConstraintsParameters();
+                        OptimizerSettingsdata.LegalityRulesParams = new  RosterLegalityRulesParameters();
+
+                        OptimizerSettingsdata.Id = int.Parse(reader["Id"].ToString());
+                        OptimizerSettingsdata.Code = reader["Code"].ToString();
+                        OptimizerSettingsdata.Descr = reader["Descr"].ToString();
+                        OptimizerSettingsdata.IsDeleted = bool.Parse(reader["ODeleted"].ToString());
+
+                        OptimizerSettingsdata.LegalityRulesParams.DaysOff = int.Parse(reader["DaysOff"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.MinHoursBetween = int.Parse(reader["MinHoursBetween"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.LatestArrivalTime = int.Parse(reader["LatestArrivalTime"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.EarliestDepartureTime = int.Parse(reader["EarliestDepartureTime"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.XHoursBreak = int.Parse(reader["XHoursBreak"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.YFlightHours = int.Parse(reader["YFlightHours"].ToString());
+                        OptimizerSettingsdata.LegalityRulesParams.MaximumFlightHours = int.Parse(reader["MaximumFlightHours"].ToString());
+
+                        OptimizerSettingsdata.BranchingParams.AbsBacktrack = int.Parse(reader["AbsBacktrack"].ToString());
+                        OptimizerSettingsdata.BranchingParams.PerceBacktrack = double.Parse(reader["PerceBacktrack"].ToString());
+                        OptimizerSettingsdata.BranchingParams.AbsMIP = int.Parse(reader["AbsMIP"].ToString());
+                        OptimizerSettingsdata.BranchingParams.PerceMIP = double.Parse(reader["PerceMIP"].ToString());
+                        OptimizerSettingsdata.BranchingParams.NumberOfBacktracksLimit = int.Parse(reader["NumberOfBacktracksLimit"].ToString());
+                        OptimizerSettingsdata.BranchingParams.NumberOfTreeNodesLimit = int.Parse(reader["NumberOfTreeNodesLimit"].ToString());
+                        OptimizerSettingsdata.BranchingParams.TreelistSortingIdsFixed = int.Parse(reader["TreelistSortingIdsFixed"].ToString());
+
+                        OptimizerSettingsdata.ColgenParams.Buckets = int.Parse(reader["Buckets"].ToString());
+                        OptimizerSettingsdata.ColgenParams.Fictbuckets = int.Parse(reader["Fictbuckets"].ToString());
+                        OptimizerSettingsdata.ColgenParams.ReducedCostCut = int.Parse(reader["ReducedCostCut"].ToString());
+                        OptimizerSettingsdata.ColgenParams.NIDRAI = double.Parse(reader["NIDRAI"].ToString());
+
+                        OptimizerSettingsdata.NumericParams.MaxDouble = double.Parse(reader["MaxDouble"].ToString());
+                        OptimizerSettingsdata.NumericParams.Eps = double.Parse(reader["Eps"].ToString());
+
+                        OptimizerSettingsdata.PenaltiesParams.UnderCoverPenalty = int.Parse(reader["UnderCoverPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.HourPenalty = int.Parse(reader["HourPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.MinMaxPenalty = int.Parse(reader["MinMaxPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.WithWithoutPenalty = int.Parse(reader["WithWithoutPenalty"].ToString());
+                        OptimizerSettingsdata.PenaltiesParams.GenderPenalty = int.Parse(reader["GenderPenalty"].ToString());
+
+                        OptimizerSettingsdata.SpecialConsParams.MinMaxAct = bool.Parse(reader["MinMaxAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithAct = bool.Parse(reader["WithAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutAct = bool.Parse(reader["WithoutAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderAct = bool.Parse(reader["GenderAct"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.MinMaxSoft = bool.Parse(reader["MinMaxSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithSoft = bool.Parse(reader["WithSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutSoft = bool.Parse(reader["WithoutSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderSoft = bool.Parse(reader["GenderSoft"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.WithoutPriority = bool.Parse(reader["WithoutPriority"].ToString());
+                        OptimizerSettingsdata.SpecialConsParams.GenderPriority = bool.Parse(reader["GenderPriority"].ToString());
+
+                        #endregion
+
+                        Data.OptimizerSettingsData = OptimizerSettingsdata;
+                        Data.IsDeleted = bool.Parse(reader["CIsDeleted"].ToString());
                     }
                 }
 
@@ -5425,7 +6903,8 @@ Inner Join Airports as A on A.AirportID = F.AirportId
                 FilterStr += @" and F.StartDate >= @StartDate";
 
 
-                command.CommandText = string.Format(@"SELECT F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,F.GroundTime,F.TotalTime,
+                command.CommandText = string.Format(@"SELECT F.FlightRouteId,F.Code,F.Descr,F.StartDate,F.EndDate,F.FlightTime,
+F.GroundTime,F.TotalTime,F.RouteCateg,
 F.Complement_Captain,F.Complement_FO,F.Complement_Cabin_Manager,F.Complement_Flight_Attendant,
 F.IsDeleted,A.AirportID,A.AirportCode,A.AirportDescr,C.CityCode,C.CityDescr,P.PrefDescr,Co.CountryDescr
 FROM FLIGHTROUTES AS F
@@ -5473,6 +6952,7 @@ Inner JOIN Country as Co on Co.CountryId = P.CountryId
                         data.Airport.City.PrefDescr = reader["PrefDescr"].ToString();
                         data.Airport.City.CountryDescr = reader["CountryDescr"].ToString();
 
+                            data.RouteCateg = (BasicEnums.RouteCategory)Enum.Parse(typeof(BasicEnums.RouteCategory), reader["RouteCateg"].ToString());
 
 
                         DataList.Add(data);

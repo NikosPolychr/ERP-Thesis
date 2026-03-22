@@ -6,6 +6,7 @@ using Erp.Model.Manufacture.MPS;
 using Erp.Model.SupplyChain.Clusters;
 using Erp.Model.Thesis;
 using Erp.Model.Thesis.CrewScheduling;
+using Erp.Model.Thesis.Filters;
 using Syncfusion.Data.Extensions;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.Windows.Shared;
@@ -29,6 +30,72 @@ namespace Erp.CommonFiles
 
 
         #region Thesis
+        public F7Data F7CrewCat(bool ShowDeleted)
+        {
+            F7Data GridData = new F7Data();
+            GridData.SfGridColumns = new Columns();
+            var Data = CommonFunctions.GetCrewCategData(ShowDeleted).ToList();
+            GridData.CollectionView = CollectionViewSource.GetDefaultView(Data);
+
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "CrewCatCode", HeaderText = "Crew Categ Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "CrewCatDescr", HeaderText = "Crew Categ Descr" });
+            GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
+
+            GridData.F7key = "CrewCat";
+            GridData.F7Title = "Crew Categories";
+            return GridData;
+        }
+
+        public F7Data F7OptimizerSettings(bool ShowDeleted)
+        {
+            F7Data GridData = new F7Data();
+            GridData.SfGridColumns = new Columns();
+            var Data = CommonFunctions.GetOptimizerSettingsData(ShowDeleted).ToList();
+            GridData.CollectionView = CollectionViewSource.GetDefaultView(Data);
+
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Code", HeaderText = "Settings Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Descr", HeaderText = "Settings Descr" });
+            //GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "BranchingParams.CityCode", HeaderText = "City Code" });
+            //GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "BranchingParams.CityDescr", HeaderText = "City Description" });
+
+            GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
+
+            GridData.F7key = "OptimizerSettings";
+            GridData.F7Title = "Optimizer Settings";
+            return GridData;
+        }
+        public F7Data F7MinMax(bool ShowDeleted)
+        {
+            F7Data GridData = new F7Data();
+            GridData.SfGridColumns = new Columns();
+            var Data = CommonFunctions.GetMinMaxData(ShowDeleted).ToList();
+            GridData.CollectionView = CollectionViewSource.GetDefaultView(Data);
+
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Code", HeaderText = "MinMax Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Descr", HeaderText = "MinMax Descr" });
+
+            GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
+
+            GridData.F7key = "MinMax";
+            GridData.F7Title = "MinMax Settings";
+            return GridData;
+        }
+        public F7Data F7WithWithout(bool ShowDeleted)
+        {
+            F7Data GridData = new F7Data();
+            GridData.SfGridColumns = new Columns();
+            var Data = CommonFunctions.GetWithWithoutData(ShowDeleted).ToList();
+            GridData.CollectionView = CollectionViewSource.GetDefaultView(Data);
+
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Code", HeaderText = "MinMax Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Descr", HeaderText = "MinMax Descr" });
+
+            GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
+
+            GridData.F7key = "WithWithout";
+            GridData.F7Title = "WithWithout Settings";
+            return GridData;
+        }
         public F7Data F7CrewScheduling(bool ShowDeleted)
         {
             F7Data GridData = new F7Data();
@@ -184,6 +251,7 @@ namespace Erp.CommonFiles
             return GridData;
         }
 
+        #region Airports
         public F7Data F7Airports(bool ShowDeleted)
         {
             F7Data GridData = new F7Data();
@@ -203,6 +271,28 @@ namespace Erp.CommonFiles
             GridData.F7Title = "Airports";
             return GridData;
         }
+
+        public F7Data SearchF7Airports( AirportsFilterData Filter)
+        {
+            F7Data GridData = new F7Data();
+            GridData.SfGridColumns = new Columns();
+            var Data = CommonFunctions.GetAirportsFilterData(Filter.ShowDeleted,Filter).ToList();
+            GridData.CollectionView = CollectionViewSource.GetDefaultView(Data);
+
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Code", HeaderText = "Airport Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "Descr", HeaderText = "Airport Descr" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "City.CityCode", HeaderText = "City Code" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "City.CityDescr", HeaderText = "City Description" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "City.PrefDescr", HeaderText = "Prefecture" });
+            GridData.SfGridColumns.Add(new GridTextColumn() { MappingName = "City.CountryDescr", HeaderText = "Country" });
+            GridData.SfGridColumns.Add(new GridCheckBoxColumn() { MappingName = "IsDeleted", HeaderText = "Deleted" });
+
+            GridData.F7key = "Airport";
+            GridData.F7Title = "Airports";
+            return GridData;
+        }
+        #endregion
+
         public F7Data F7FL_Airports(bool ShowDeleted,AirportData Airport)
         {
             F7Data GridData = new F7Data();

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Erp.ViewModelSearch.Thesis
+namespace Erp.Model.Thesis.CrewScheduling.OptimimzerSettings
 {
-    public class AirportsViewmodelSearch
+    public class DataGenerationParams
     {
     }
 }

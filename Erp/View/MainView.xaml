@@ -17,7 +17,8 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         Background="Transparent"
-        AllowsTransparency="True" >
+        AllowsTransparency="True" 
+        Icon="/Images/aerlogo1.ico"  >
     <Window.DataContext>
         <viewModel:MainViewModel/>
     </Window.DataContext>
@@ -88,14 +89,13 @@
                 </Border.Background>
                 <StackPanel>
                     <!--Logo-->
-                    <StackPanel Orientation="Horizontal" Height="35" Margin="15,25,0,40">
-                        <Image Source="/Images/Logo.PNG"  />
-                        <TextBlock Text="ERP THESIS" Foreground="WhiteSmoke"
-                                   FontSize="20"
-                                   FontFamily="Segoe UI"
-                                   FontWeight="Medium"
-                                   VerticalAlignment="Center"
-                                   Margin="5,0,0,0"/>
+                    <StackPanel Orientation="Horizontal" Height="100" Margin="15,25,0,20">
+                        <Image Source="/Images/aerlogo1.PNG" 
+           Height="145" 
+           Width="210"
+           HorizontalAlignment="Center"
+           VerticalAlignment="Center"
+           Stretch="Uniform"/>
                     </StackPanel>
                     <Grid HorizontalAlignment="Stretch" Grid.Row="1" >
                         <Grid.RowDefinitions>
@@ -103,7 +103,7 @@
                         </Grid.RowDefinitions>
                         <ScrollViewer HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="0"
                                       FontSize="16" FontFamily="Segoe UI">
-                            <StackPanel x:Name="Menu" Margin="10"  />
+                            <StackPanel x:Name="Menu" Margin="4"  />
                         </ScrollViewer>
                     </Grid>
 
@@ -258,7 +258,7 @@
                      OnCloseAllTabs="TabControlExt_OnCloseAllTabs"
                      OnCloseOtherTabs="TabControlExt_OnCloseOtherTabs"
                      EnableLabelEdit="False"
-                     Background="White"
+                     Background="FloralWhite"
                                 >
 
                     </syncfusion:TabControlExt>

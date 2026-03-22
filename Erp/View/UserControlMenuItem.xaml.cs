@@ -1,27 +1,18 @@
-﻿using Erp.Model;
+﻿using Erp.CustomControls;
+using Erp.Helper;
+using Erp.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Erp.View
 {
-    /// <summary>
-    /// Interaction logic for UserControlMenuItem.xaml
-    /// </summary>
     public partial class UserControlMenuItem : UserControl
     {
-        MainView _context;
+        private readonly MainView _context;
+
         public UserControlMenuItem(ItemMenu itemMenu, MainView context)
         {
             InitializeComponent();
@@ -31,23 +22,66 @@ namespace Erp.View
             ExpanderMenu.Visibility = itemMenu.SubItems == null ? Visibility.Collapsed : Visibility.Visible;
             ListViewItemMenu.Visibility = itemMenu.SubItems == null ? Visibility.Visible : Visibility.Collapsed;
 
-            this.DataContext = itemMenu;
+            DataContext = itemMenu;
 
+            FirstButtonCommand = new RelayCommand<SubItem>(ExecuteFirstButton);
+            SecondButtonCommand = new RelayCommand<SubItem>(ExecuteSecondButton);
         }
 
-        private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ListView listView)
-            {
-                if (listView.SelectedItem is SubItem selectedSubItem)
-                {
-                    //_context.SwitchScreen(selectedSubItem.Screen, selectedSubItem.Name);
-                    _context.SwitchScreen2(selectedSubItem.Screen, selectedSubItem.Name);
-                    _context.ClearSelectionExcept(this);
+        #region Button Commands
+        public ICommand FirstButtonCommand { get; }
+        public ICommand SecondButtonCommand { get; }
 
-                }
+        private void ExecuteFirstButton(SubItem subItem)
+        {
+            if (subItem?.ScreenFactory == null)
+            {
+                MessageBox.Show($"No screen available for {subItem?.Name ?? "Unknown"}",
+                    "Navigation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var screen = subItem.ScreenFactory();
+            _context.SwitchScreen2(screen, subItem.Name);
+            _context.ClearSelectionExcept(this);
+        }
+        private void ExecuteSecondButton(SubItem subItem)
+        {
+            if (subItem == null) return;
+
+            // Find matching search item by SearchKey
+            var searchItem = _context.SubItemsSearch
+                                     .FirstOrDefault(s => s.SearchKey == subItem.SearchKey);
+
+            if (searchItem == null)
+            {
+                MessageBox.Show($"No search screen registered for {subItem.Name}",
+                    "Search", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (searchItem.ScreenFactory == null)
+            {
+                MessageBox.Show($"Search screen factory missing for {searchItem.Name}",
+                    "Search", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var screen = searchItem.ScreenFactory();
+            _context.SwitchScreen2(screen, searchItem.Name);
+            _context.ClearSelectionExcept(this);
+
+            if (searchItem.FilterFactory != null)
+            {
+                var popup = new FlatSearchWindow(searchItem.FilterFactory())
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                popup.ShowDialog();
             }
         }
+
+        #endregion
 
         public void ClearSelection()
         {

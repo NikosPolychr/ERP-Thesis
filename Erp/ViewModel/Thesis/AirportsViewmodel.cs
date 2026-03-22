@@ -173,21 +173,17 @@ namespace Erp.ViewModel.Thesis
 
         #region Data_Grid Commands
 
-        public ICommand ShowAirportsGridCommand { get; }
+        public ICommand ShowAirportsGridCommand { get; set; }
         public ICommand ShowCitiesGridCommand { get; }
-
-
-
-
         private void ExecuteShowAirportsGridCommand(object obj)
         {
+
             var f7Data = F7Common.F7Airports(ShowDeleted);
             f7Data.F7Title = "Select Airport";
 
             var popup = new F7PopupWindow(f7Data, ChangeCanExecute);
             bool? dialogResult = popup.ShowDialog();
         }
-
         private void ExecuteShowCitiesGridCommand(object obj)
         {
 

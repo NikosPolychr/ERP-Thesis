@@ -35,6 +35,16 @@ namespace Erp.Model.Enums
             Cabin_Manager,
             Flight_Attendant
         }
+        public enum RouteCategory
+        {
+            RouteCat1,
+            RouteCat2,
+            RouteCat3,
+            RouteCat4,
+            RouteCat5,
+            RouteCat6
+
+        }
 
         public enum CertPosition
         {

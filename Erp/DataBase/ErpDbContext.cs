@@ -17,11 +17,15 @@ namespace Erp.DataBase
 
         #region Thesis
 
+        #region Setup 
+        public DbSet<CrewCategDataEntity> CrewCateg { get; set; }
+
+        #endregion
         #region Vacation Planning
 
         #region Employee
-
         public DbSet<EmployeeDataEntity> Employees { get; set; }
+        public DbSet<EmpCrewCategsDataEntity> EmpCrewCategs { get; set; }
         public DbSet<LeaveBidsDataEntity> LeaveBids { get; set; }
         public DbSet<LeaveStatusDataEntity> LeaveStatus { get; set; }
         #endregion
@@ -49,6 +53,12 @@ namespace Erp.DataBase
         #region Crew Scheduling Optimization
 
         public DbSet<CSInputDataEntity> CSInput { get; set; }
+
+        public DbSet<MinMaxDataEntity> MinMax { get; set; }
+        public DbSet<WithWithoutDataEntity> WithWithout { get; set; }
+        public DbSet<OptimizerSettingsDataEntity> OptimizerSettings { get; set; }
+
+
         #endregion
 
         #region Flights

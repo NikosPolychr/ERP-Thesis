@@ -127,6 +127,9 @@
     <Compile Include="Converters\RatioConverter.cs" />
     <Compile Include="Converters\RowStyleConverter.cs" />
     <Compile Include="Converters\TimeBucketToDateFormatConverter.cs" />
+    <Compile Include="CrewScheduling\NetworkNode.cs" />
+    <Compile Include="CrewScheduling\SchedulingFunctions.cs" />
+    <Compile Include="CrewScheduling\TreeNode.cs" />
     <Compile Include="CustomControls\BindablePasswordBox.xaml.cs">
       <DependentUpon>BindablePasswordBox.xaml</DependentUpon>
     </Compile>
@@ -139,6 +142,9 @@
     <Compile Include="CustomControls\F7PopupViewModel.cs" />
     <Compile Include="CustomControls\F7PopupWindow.xaml.cs">
       <DependentUpon>F7PopupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\FlatSearchWindow.xaml.cs">
+      <DependentUpon>FlatSearchWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataBase\BomDataEntity.cs" />
     <Compile Include="DataBase\CityDataEntity.cs" />
@@ -167,7 +173,9 @@
     <Compile Include="DataBase\Τhesis\AircraftDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\AirportsDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\CertificationsDataEntity.cs" />
+    <Compile Include="DataBase\Τhesis\CrewCategDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\CSInputDataEntity.cs" />
+    <Compile Include="DataBase\Τhesis\EmpCrewCategsDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\EMPLanguagesDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\EmployeeDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\FlightLegsDataEntity.cs" />
@@ -175,10 +183,13 @@
     <Compile Include="DataBase\Τhesis\LanguageDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\LeaveBidsDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\LeaveStatusDataEntity.cs" />
+    <Compile Include="DataBase\Τhesis\MinMaxDataEntity.cs" />
+    <Compile Include="DataBase\Τhesis\OptimizerSettingsDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\ReqScheduleInfoDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\ReqScheduleRowsDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\VPInputDataEntity.cs" />
     <Compile Include="DataBase\Τhesis\VPYijzResultsDataEntity.cs" />
+    <Compile Include="DataBase\Τhesis\WithWithoutDataEntity.cs" />
     <Compile Include="F7TextBox.cs" />
     <Compile Include="Helper\RelayCommand.cs" />
     <Compile Include="Model\BaseData.cs" />
@@ -288,13 +299,27 @@
     <Compile Include="Model\Thesis\AircraftData.cs" />
     <Compile Include="Model\Thesis\AirportData.cs" />
     <Compile Include="Model\Thesis\CertificationData.cs" />
+    <Compile Include="Model\Thesis\CrewCategData.cs" />
     <Compile Include="Model\Thesis\CrewScheduling\CSInputData.cs" />
     <Compile Include="Model\Thesis\CrewScheduling\CSOutputData.cs" />
     <Compile Include="Model\Thesis\CrewScheduling\EmployeeCR_Settings.cs" />
     <Compile Include="Model\Thesis\CrewScheduling\FlightLegsData.cs" />
     <Compile Include="Model\Thesis\CrewScheduling\FlightRoutesData.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\InputParamsMainSettingsH.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\MinMaxData.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\BranchingParameters.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\ColgenPerformanceParams.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\DataGenerationParams.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\NumericParameters.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\Penalties.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\RosterLegalityRulesParameters.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimimzerSettings\SpecialConstraintsParameters.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\OptimizerSettingsData.cs" />
+    <Compile Include="Model\Thesis\CrewScheduling\WithWithoutData.cs" />
+    <Compile Include="Model\Thesis\EmpCrewCategsData.cs" />
     <Compile Include="Model\Thesis\EMPLanguageData.cs" />
     <Compile Include="Model\Thesis\EmployeeData.cs" />
+    <Compile Include="Model\Thesis\Filters\AirportsFilterData.cs" />
     <Compile Include="Model\Thesis\LanguageData.cs" />
     <Compile Include="Model\Thesis\LeaveBidRowData.cs" />
     <Compile Include="Model\Thesis\LeaveBidsData.cs" />
@@ -313,7 +338,7 @@
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="Repositories\RepositoryBase.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
-    <Compile Include="ViewModelSearch\Thesis\AirportsViewmodelSearch.cs" />
+    <Compile Include="ViewModelSearch\Thesis\AirportsSearchViewModel.cs" />
     <Compile Include="ViewModelSearch\ViewModelBaseSearch.cs" />
     <Compile Include="ViewModel\BasicFiles\CityViewModel.cs" />
     <Compile Include="ViewModel\BasicFiles\CountryViewModel.cs" />
@@ -363,16 +388,26 @@
     <Compile Include="ViewModel\SupplyChain\VrpVisViewModel.cs" />
     <Compile Include="ViewModel\TabViewModel.cs" />
     <Compile Include="ViewModel\Thesis\AirportsViewmodel.cs" />
+    <Compile Include="ViewModel\Thesis\CrewCategViewModel.cs" />
     <Compile Include="ViewModel\Thesis\CrewSchedulingViewModel.cs" />
     <Compile Include="ViewModel\Thesis\EmployeeViewModel.cs" />
     <Compile Include="ViewModel\Thesis\FlightLegsViewModel.cs" />
     <Compile Include="ViewModel\Thesis\FlightRoutesViewModel.cs" />
     <Compile Include="ViewModel\Thesis\LanguageViewModel.cs" />
+    <Compile Include="ViewModel\Thesis\MinMaxViewModel.cs" />
+    <Compile Include="ViewModel\Thesis\OptimizerSettingsViewModel.cs" />
     <Compile Include="ViewModel\Thesis\RequirementsScheduleViewModel.cs" />
     <Compile Include="ViewModel\Thesis\VacationsPlanningViewModel.cs" />
+    <Compile Include="ViewModel\Thesis\WithWithoutViewModel.cs" />
     <Compile Include="ViewModel\UpdateForecast.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\ViewModelCommand.cs" />
+    <Compile Include="ViewSearch\AirportSearchPopupView.xaml.cs">
+      <DependentUpon>AirportSearchPopupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSearch\AirportsSearchView.xaml.cs">
+      <DependentUpon>AirportsSearchView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\BasicFiles\CityView.xaml.cs">
       <DependentUpon>CityView.xaml</DependentUpon>
     </Compile>
@@ -499,6 +534,9 @@
     <Compile Include="View\Thesis\AirportsView.xaml.cs">
       <DependentUpon>AirportsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Thesis\CrewCategView.xaml.cs">
+      <DependentUpon>CrewCategView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Thesis\CrewSchedulingView.xaml.cs">
       <DependentUpon>CrewSchedulingView.xaml</DependentUpon>
     </Compile>
@@ -517,11 +555,20 @@
     <Compile Include="View\Thesis\LanguageView.xaml.cs">
       <DependentUpon>LanguageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Thesis\MinMaxView.xaml.cs">
+      <DependentUpon>MinMaxView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Thesis\OptimizerSettingsView.xaml.cs">
+      <DependentUpon>OptimizerSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Thesis\RequirementsScheduleView.xaml.cs">
       <DependentUpon>RequirementsScheduleView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Thesis\VacationsPlanningView.xaml.cs">
       <DependentUpon>VacationsPlanningView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Thesis\WithWithoutView.xaml.cs">
+      <DependentUpon>WithWithoutView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\UserControlMenuItem.xaml.cs">
       <DependentUpon>UserControlMenuItem.xaml</DependentUpon>
@@ -546,6 +593,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="CustomControls\FlatSearchWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="F7TextBoxDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -555,6 +606,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\UIColors.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ViewSearch\AirportSearchPopupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ViewSearch\AirportsSearchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -726,6 +785,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\Thesis\CrewCategView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Thesis\CrewSchedulingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -750,11 +813,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\Thesis\MinMaxView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Thesis\OptimizerSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Thesis\RequirementsScheduleView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Thesis\VacationsPlanningView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Thesis\WithWithoutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -826,6 +901,7 @@
     <Resource Include="Images\usericon.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="CustomControls\Flat Search\" />
     <Folder Include="Model\Stores\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -841,6 +917,9 @@
     </PackageReference>
     <PackageReference Include="Deedle">
       <Version>3.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="envdte">
+      <Version>17.14.40260</Version>
     </PackageReference>
     <PackageReference Include="EPPlus">
       <Version>7.1.2</Version>
@@ -954,5 +1033,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\popupwindow.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\airplane_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\aerlogo1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\aerlogo2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\aerlogo1.ico" />
   </ItemGroup>
 </Project>

@@ -62,7 +62,30 @@ namespace Erp.ViewModel.Thesis
 
         #endregion
 
-        #region Extra
+        #region CrewCategories
+        private ObservableCollection<EmpCrewCategsData> _EMPCrewCatData;
+        public ObservableCollection<EmpCrewCategsData> EMPCrewCatData
+        {
+            get { return _EMPCrewCatData; }
+            set
+            {
+                _EMPCrewCatData = value;
+                INotifyPropertyChanged(nameof(EMPCrewCatData));
+            }
+        }
+        private List<EmpCrewCategsData> newempcrewcatdata;
+        public List<EmpCrewCategsData> NewCrewCatData
+        {
+            get { return newempcrewcatdata; }
+            set
+            {
+                newempcrewcatdata = value;
+                INotifyPropertyChanged(nameof(NewCrewCatData));
+            }
+        }
+
+
+        #endregion
 
         #region Languages
         private ObservableCollection<EMPLanguageData> _EMPLanguageData;
@@ -104,7 +127,6 @@ namespace Erp.ViewModel.Thesis
         }
         #endregion
 
-        #endregion
 
         #endregion
 
@@ -157,7 +179,10 @@ namespace Erp.ViewModel.Thesis
 
             FlatData.MainSchedule = CommonFunctions.GetMainScheduleInfoData();
             EMPLanguageData = new ObservableCollection<EMPLanguageData>();
+            EMPCrewCatData = new ObservableCollection<EmpCrewCategsData>();
+
         }
+
         #endregion
         #region Save
 
@@ -227,6 +252,7 @@ namespace Erp.ViewModel.Thesis
                 ExecuteRefreshCommandLeaveStatus(FlatData);
 
                 EMPLanguageData = CommonFunctions.GetEMPLanguageData(FlatData.Code, false);
+                EMPCrewCatData = CommonFunctions.GetEMPCrewCategData(FlatData.Code, false);
 
             }
 
@@ -270,6 +296,102 @@ namespace Erp.ViewModel.Thesis
 
         }
         #endregion
+        #endregion
+
+        #region  Tab CrewCategs
+
+        #region Save
+        private ViewModelCommand saveCommand_Cat;
+        public ICommand SaveCommand_Cat
+        {
+            get
+            {
+                if (saveCommand_Cat == null)
+                {
+                    saveCommand_Cat = new ViewModelCommand(ExecuteSaveCommand_Cat);
+                }
+
+                return saveCommand_Cat;
+            }
+        }
+        private void ExecuteSaveCommand_Cat(object obj)
+        {
+            EMPCrewCatData = EMPCrewCatData.Where(d => d.ExistingFlag == true || (d.NewCrewCatFlag == true && d.CrewCatFlag == true)).ToObservableCollection();
+
+            //FlatData2.Clear();
+            //foreach (var item in NewData)
+            //{
+            //    FlatData2.Add(item);
+            //}
+
+
+            bool Flag = CommonFunctions.SaveEMPCrewCategData (EMPCrewCatData, FlatData.Code);
+
+
+            if (Flag == true)
+            {
+                MessageBox.Show($"The Update of the Categories has been completed for the Employee with Code: {FlatData.Code}");
+                ExecuteRefreshCommand2(obj);
+            }
+            else
+            {
+                MessageBox.Show("Error during data processing", "", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+        #region Refresh
+
+        private ViewModelCommand refreshCommand_Cat;
+
+        public ICommand RefreshCommand_Cat
+        {
+            get
+            {
+                if (refreshCommand_Cat == null)
+                {
+                    refreshCommand_Cat = new ViewModelCommand(ExecuteRefreshCommand_Cat);
+                }
+
+                return refreshCommand_Cat;
+            }
+        }
+
+        public void ExecuteRefreshCommand_Cat(object commandParameter)
+        {
+
+            //FlatData.LeaveBidDataGridStatic = CommonFunctions.GetLeaveBids(FlatData.Code, FlatData.MainSchedule.ReqCode);
+
+        }
+
+        #endregion
+        #region AddCrewCat
+
+        private ViewModelCommand _AddCrewCat;
+
+        public ICommand AddCrewCat
+        {
+            get
+            {
+                if (_AddCrewCat == null)
+                {
+                    _AddCrewCat = new ViewModelCommand(ExecuteAddAddCrewCat);
+                }
+
+                return _AddCrewCat;
+            }
+        }
+
+
+        private void ExecuteAddAddCrewCat(object commandParameter)
+        {
+
+            EMPCrewCatData = CommonFunctions.GetEMPCrewCategData(FlatData.Code, true);
+
+        }
+
+        #endregion
+
         #endregion
 
         #region 2nd Tab LeaveBids,LeaveStatus
@@ -792,7 +914,6 @@ namespace Erp.ViewModel.Thesis
 
         #endregion
 
-        #region Extra
 
         #region 3d Tab Language
         #region Save
@@ -889,7 +1010,6 @@ namespace Erp.ViewModel.Thesis
         #endregion
 
         #endregion
-        #endregion
 
         #region Data_Grid Commands
 
@@ -973,6 +1093,8 @@ namespace Erp.ViewModel.Thesis
                 FlatData.IsDeleted = (SelectedItem as EmployeeData).IsDeleted;
 
                 EMPLanguageData = CommonFunctions.GetEMPLanguageData(FlatData.Code, false);
+                EMPCrewCatData = CommonFunctions.GetEMPCrewCategData(FlatData.Code, false);
+
                 FlatData.MainSchedule = CommonFunctions.GetMainScheduleInfoData();
 
                 FlatData.EmpCrSettings = (SelectedItem as EmployeeData).EmpCrSettings;

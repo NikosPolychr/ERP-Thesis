@@ -37,6 +37,12 @@ namespace Erp.DataBase.Τhesis
         [Column(TypeName = "bit")]
         public bool? IsDeleted { get; set; }
 
+        public int? OptSettingsId { get; set; }
+
+
+        [ForeignKey("OptSettingsId")]
+        public virtual OptimizerSettingsDataEntity OptimizerSettings { get; set; }
+
 
     }
 }

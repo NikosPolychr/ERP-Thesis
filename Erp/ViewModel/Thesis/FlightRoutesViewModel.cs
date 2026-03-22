@@ -1,8 +1,10 @@
 ﻿using Erp.Helper;
 using Erp.Model.BasicFiles;
+using Erp.Model.Enums;
 using Erp.Model.Thesis;
 using Erp.Model.Thesis.CrewScheduling;
 using Syncfusion.UI.Xaml.Grid;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -35,6 +37,15 @@ namespace Erp.ViewModel.Thesis
                 INotifyPropertyChanged(nameof(FlatData));
             }
         }
+        #region Enums 
+
+        public BasicEnums.RouteCategory[] RouteCategories
+        {
+            get { return (BasicEnums.RouteCategory[])Enum.GetValues(typeof(BasicEnums.RouteCategory)); }
+        }
+
+
+        #endregion
 
         #endregion
 

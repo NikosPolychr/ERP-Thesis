@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Syncfusion.UI.Xaml.Grid;
 using System.Security.Policy;
 using Erp.Model.Interfaces;
+using Erp.CrewScheduling;
 
 namespace Erp.ViewModel
 {
@@ -128,6 +129,7 @@ namespace Erp.ViewModel
         public CommonFunctions CommonFunctions = new CommonFunctions();
         public CPLEXFunctions CplexFunctions = new CPLEXFunctions();
         public ML_AI_Functions ML_AiFunctions = new ML_AI_Functions();
+        public SchedulingFunctions SchedulingFunctions = new SchedulingFunctions();
 
         public F7Common F7Common = new F7Common();
 

@@ -17,7 +17,6 @@
     <UserControl.Resources>
         <viewmodel:ActivePanelToVisibilityLeaveTypeConverter x:Key="ActivePanelToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -198,6 +197,72 @@
 
 
                     </StackPanel>
+                </TabItem>
+                <TabItem Header="Crew Categories">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal" >
+                            <Button x:Name="RefreshButton_Cat"  Width="120" Margin="1"  HorizontalAlignment="Left" Command="{Binding RefreshCommand_Cat}">
+                                <TextBlock Text="Refresh"/>
+                            </Button>
+
+                            <Button x:Name="SaveButton_Cat"  Width="120" Margin="1" HorizontalAlignment="Left"  Command="{Binding SaveCommand_Cat}">
+                                <TextBlock Text="Save"/>
+                            </Button>
+                            <Button x:Name="Add_Cat"  Width="120" Margin="1" HorizontalAlignment="Left"  Command="{Binding AddCrewCat}">
+                                <TextBlock Text="Add Category"/>
+                            </Button>
+                        </StackPanel>
+                        <syncfusion:SfDataGrid x:Name="sfGrid_Cat"
+                                                    Grid.Row="1"
+                                                    Grid.RowSpan="1"
+                                                    Grid.Column="0"
+                                                    Background="White"
+                                                    AllowSorting="True"
+                                                    ShowSortNumbers="True"
+                                                    AllowEditing="True"
+                                                     ColumnSizer="Star"
+                                           
+                                           
+                                                    AllowFiltering="True"
+                                                    AutoGenerateColumns="False"
+                                                    ItemsSource="{Binding EMPCrewCatData , Mode=TwoWay , UpdateSourceTrigger=PropertyChanged}"
+                                                    ShowRowHeader="True" 
+                                                                                                                               
+                                                    AllowResizingColumns="True"
+                                                    FilterRowPosition="FixedTop"
+                                                    ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                                    ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                                    ShowToolTip="True"
+                                                    AllowGrouping="True"
+                                                    ShowGroupDropArea="True"
+                                                >
+                            <syncfusion:SfDataGrid.Columns>
+                                
+                                <syncfusion:GridTextColumn MappingName="CrewCateg.CrewCatCode" HeaderText="Category Code" AllowEditing="False"/>
+                                <syncfusion:GridTextColumn MappingName="CrewCateg.CrewCatDescr" HeaderText="Category Descr" AllowEditing="False"/>
+                                <syncfusion:GridCheckBoxColumn MappingName="CrewCatFlag" HeaderText="Select" AllowEditing="True"/>
+
+                            </syncfusion:SfDataGrid.Columns>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.RowDataCommand,ElementName=sfGrid}" CommandParameter="{Binding}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </syncfusion:SfDataGrid>
+
+
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Leave Preferance">
                     <StackPanel>
@@ -488,9 +553,6 @@
                                 </StackPanel>
                             </Border>
 
-
-
-
                         </Grid>
 
 
@@ -534,7 +596,7 @@
 
                 </TabItem>
 
-                <!--<TabItem Header="Languages">
+                <TabItem Header="Languages">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -590,16 +652,16 @@
                                 <syncfusion:GridCheckBoxColumn MappingName="LanguageFlag" HeaderText="Select" AllowEditing="True"/>
 
                             </syncfusion:SfDataGrid.Columns>
-                            --><!--<i:Interaction.Triggers>
+                            <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDoubleClick">
                                 <i:InvokeCommandAction Command="{Binding Path=DataContext.RowDataCommand,ElementName=sfGrid}" CommandParameter="{Binding}"/>
                             </i:EventTrigger>
-                        </i:Interaction.Triggers>--><!--
+                        </i:Interaction.Triggers>
                         </syncfusion:SfDataGrid>
 
 
                     </Grid>
-                </TabItem>-->
+                </TabItem>
             </TabControl>
         </StackPanel>
 
